@@ -67,7 +67,7 @@ Camera Arena este o aplicație completă pentru colecționarii de aparate foto. 
 
 ### Din GitHub
 ```bash
-git clone https://github.com/USERNAME/camera-arena.git
+git clone https://github.com/DanCalancea/camera-arena.git
 cd camera-arena
 # Deschide camera-collection.html în browser
 ```
