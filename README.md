@@ -156,7 +156,7 @@ Distribuit sub licența MIT. Vezi `LICENSE` pentru mai multe informații.
 
 ## 📸 Screenshots
 
-*Adaugă screenshots aici după ce publici aplicația*
+<img width="3200" height="1800" alt="{C60D6DDA-2670-4301-8410-E7DC2AE2B348}" src="https://github.com/user-attachments/assets/acc07170-8319-4a4e-a887-435859f14bf4" />
 
 ---
 
