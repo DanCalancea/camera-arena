@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Arena</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js"></script>
+    <style>
+        :root { --bg-dark: #0d0d0d; --bg-card: #1a1a1a; --bg-card-hover: #242424; --accent-primary: #c9a962; --accent-primary-light: #e8d5a3; --accent-secondary: #b87333; --text-primary: #f5f5f5; --text-secondary: #a0a0a0; --text-muted: #666; --border-subtle: #2a2a2a; --success: #4a9f6e; --danger: #c45c5c; }
+        [data-theme="gold"] { --accent-primary: #c9a962; --accent-primary-light: #e8d5a3; --accent-secondary: #b87333; }
+        [data-theme="blue"] { --accent-primary: #5b8fb9; --accent-primary-light: #8bb8d9; --accent-secondary: #3d6a8a; }
+        [data-theme="green"] { --accent-primary: #6b9b7a; --accent-primary-light: #9bc4a9; --accent-secondary: #4a7a5a; }
+        [data-theme="purple"] { --accent-primary: #9b7bb0; --accent-primary-light: #c4a8d4; --accent-secondary: #7a5a90; }
+        [data-theme="red"] { --accent-primary: #c47070; --accent-primary-light: #e0a0a0; --accent-secondary: #a55050; }
+        [data-theme="teal"] { --accent-primary: #5ba3a3; --accent-primary-light: #8bc4c4; --accent-secondary: #3d7a7a; }
+        [data-mode="light"] { --bg-dark: #f5f5f0; --bg-card: #ffffff; --bg-card-hover: #f0f0eb; --text-primary: #1a1a1a; --text-secondary: #555555; --text-muted: #888888; --border-subtle: #e0e0db; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Source Sans 3', sans-serif; background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; line-height: 1.6; }
+        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        header { text-align: center; padding: 2rem 0 3rem; border-bottom: 1px solid var(--border-subtle); margin-bottom: 2rem; position: relative; }
+        header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 100px; height: 3px; background: linear-gradient(90deg, transparent, var(--accent-primary), transparent); }
+        .logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary-light), var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tagline { font-size: 0.85rem; color: var(--text-secondary); font-weight: 300; letter-spacing: 0.15em; text-transform: uppercase; }
+        .settings-btn { position: absolute; top: 1.5rem; right: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .settings-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .storage-indicator { position: absolute; top: 1.5rem; left: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
+        .storage-bar { width: 50px; height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+        .storage-fill { height: 100%; background: var(--accent-primary); border-radius: 3px; }
+        .stats-bar { display: flex; justify-content: center; gap: 3rem; padding: 1.5rem 0; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: var(--accent-primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
+        .stat-filtered { font-size: 0.8rem; color: var(--text-primary); margin-top: 0.3rem; opacity: 0.9; min-height: 1.2em; }
+        .actions { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 4px; font-family: 'Source Sans 3', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-transform: uppercase; transition: all 0.2s; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: var(--bg-dark); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(201, 169, 98, 0.3); }
+        .btn-secondary { background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border-subtle); }
+        .btn-secondary:hover { background: var(--bg-card-hover); border-color: var(--accent-primary); }
+        .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+        .search-box { flex: 1; min-width: 200px; position: relative; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem; }
+        .search-box input:focus { outline: none; border-color: var(--accent-primary); }
+        .search-box::before { content: '⌕'; position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1.1rem; }
+        .filter-select { padding: 0.8rem 2rem 0.8rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px; color: var(--text-primary); font-size: 0.85rem; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3E%3Cpath fill='%23a0a0a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.8rem center; }
+        .view-modes { display: flex; gap: 0.25rem; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 0.25rem; }
+        .view-mode-btn { padding: 0.5rem 0.8rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; border-radius: 3px; font-size: 1rem; }
+        .view-mode-btn.active { background: var(--accent-primary); color: var(--bg-dark); }
+        
+        /* GRID VIEWS */
+        .camera-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        .camera-grid.view-compact { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+        
+        /* LIST VIEW */
+        .camera-grid.view-list { display: flex; flex-direction: column; gap: 0.4rem; }
+        .camera-grid.view-list.virtual-scroll { display: block; overflow-y: auto; max-height: calc(100vh - 400px); position: relative; }
+        .virtual-scroll-content { position: relative; }
+        .view-list .camera-card { display: grid; grid-template-columns: 80px minmax(200px, 1fr) 70px minmax(140px, 180px) 100px 100px 100px 120px; align-items: center; gap: 0.8rem; padding: 0.6rem 1rem; border-radius: 6px; }
+        .view-list.virtual-scroll .camera-card { position: absolute; left: 0; right: 0; }
+        .view-list .camera-card:hover { transform: translateX(4px); }
+        
+        /* CARD STYLES */
+        .camera-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden; position: relative; transition: all 0.3s; }
+        .camera-card:hover { border-color: var(--accent-primary); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+        .camera-grid:not(.view-list) .camera-card:hover { transform: translateY(-4px); }
+        
+        /* IMAGE */
+        .camera-image { width: 100%; height: 180px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .camera-image img { width: 100%; height: 100%; object-fit: cover; }
+        .camera-image.no-image::before { content: '📷'; font-size: 3rem; opacity: 0.3; }
+        .camera-image.no-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(201,169,98,0.1) 50%, transparent 70%); }
+        .view-list .camera-image { width: 80px; height: 55px; border-radius: 4px; flex-shrink: 0; }
+        .view-list .camera-image.no-image::before { font-size: 1.5rem; }
+        .view-compact .camera-image { height: 140px; }
+        .view-compact .camera-image.no-image::before { font-size: 2rem; }
+        
+        /* CONTENT */
+        .camera-content { padding: 1.2rem; }
+        .view-list .camera-content { padding: 0; overflow: hidden; }
+        .view-compact .camera-content { padding: 0.8rem; }
+        .camera-brand { font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+        .camera-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; line-height: 1.3; }
+        .view-list .camera-name { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
+        .view-list .camera-brand { display: none; }
+        .view-compact .camera-name { font-size: 1rem; }
+        .camera-meta { font-size: 0.8rem; color: var(--text-muted); }
+        .view-list .camera-meta { display: none; }
+        
+        /* LIST COLUMNS */
+        .list-col { display: flex; flex-direction: column; min-width: 0; }
+        .list-col-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .list-col-value { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .list-col-value.price { font-family: 'Playfair Display', serif; color: var(--accent-primary-light); }
+        
+        /* DETAILS (tile/compact) */
+        .camera-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-subtle); }
+        .view-list .camera-details { display: none; }
+        .view-compact .camera-details { display: none; }
+        .detail-item { display: flex; flex-direction: column; gap: 0.15rem; }
+        .detail-label { display: block; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.03em; }
+        .detail-value { display: block; color: var(--text-primary); font-size: 0.9rem; line-height: 1.2; }
+        
+        /* VALUES (tile/compact) */
+        .camera-values { display: flex; justify-content: space-around; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-subtle); }
+        .view-list .camera-values { display: none; }
+        .view-compact .camera-values { margin-top: 0.5rem; padding-top: 0.5rem; }
+        .value-item { text-align: center; flex: 1; display: flex; flex-direction: column; gap: 0.2rem; }
+        .value-label { display: block; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+        .value-amount { display: block; font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--accent-primary-light); font-weight: 600; }
+        .view-compact .value-amount { font-size: 0.9rem; }
+        
+        /* ACTIONS */
+        .camera-actions { position: absolute; top: 0.8rem; right: 0.8rem; display: flex; gap: 0.4rem; opacity: 0; transition: opacity 0.3s; z-index: 5; }
+        .camera-card:hover .camera-actions { opacity: 1; }
+        .view-list .camera-actions { position: static; opacity: 1; justify-content: flex-end; }
+        .btn-icon { width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; background: rgba(26, 26, 26, 0.9); backdrop-filter: blur(4px); }
+        [data-mode="light"] .btn-icon { background: rgba(255, 255, 255, 0.9); }
+        .view-list .btn-icon { width: 30px; height: 30px; font-size: 0.85rem; background: var(--bg-card); }
+        .btn-edit { color: var(--text-primary); border: 1px solid var(--border-subtle); }
+        .btn-edit:hover { background: var(--accent-primary); color: var(--bg-dark); border-color: var(--accent-primary); }
+        .btn-delete { color: var(--danger); border: 1px solid var(--border-subtle); }
+        .btn-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-ebay { color: #e53238; border: 1px solid var(--border-subtle); }
+        .btn-ebay:hover { background: #e53238; color: white; border-color: #e53238; }
+        .btn-pdf { color: #4a90d9; border: 1px solid var(--border-subtle); }
+        .btn-pdf:hover { background: #4a90d9; color: white; border-color: #4a90d9; }
+        
+        /* BADGES */
+        .badges { position: absolute; top: 0.8rem; left: 0.8rem; display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .view-list .badges { position: static; display: flex; gap: 0.3rem; }
+        .badge { padding: 0.2rem 0.5rem; border-radius: 12px; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; }
+        .badge-status { }
+        .badge-excellent { background: var(--success); color: white; }
+        .badge-good { background: #5a8f7b; color: white; }
+        .badge-fair { background: #b89f5a; color: var(--bg-dark); }
+        .badge-poor { background: var(--danger); color: white; }
+        .badge-functional { }
+        .badge-func-yes { background: var(--success); color: white; }
+        .badge-func-no { background: var(--danger); color: white; }
+        .badge-rarity { font-size: 0.55rem; }
+        .badge-rarity-common { background: #888; color: white; }
+        .badge-rarity-uncommon { background: #2e8b57; color: white; }
+        .badge-rarity-rare { background: #4169e1; color: white; }
+        .badge-rarity-very-rare { background: #9932cc; color: white; }
+        .badge-rarity-extremely-rare { background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #9b59b6); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .badge-country { font-size: 1.1rem; background: transparent; padding: 0.1rem 0.3rem; }
+        .country-display { font-size: 0.85rem; font-weight: 500; color: var(--text-primary); }
+        .country-display img.emoji, .badge-country img.emoji { height: 1.1em; width: 1.1em; vertical-align: -0.15em; }
+        img.emoji { height: 1em; width: 1em; margin: 0 0.1em; vertical-align: -0.1em; }
+        .rarity-color-common { color: #888 !important; }
+        .rarity-color-uncommon { color: #2e8b57 !important; }
+        .rarity-color-rare { color: #4169e1 !important; }
+        .rarity-color-very-rare { color: #9932cc !important; }
+        .rarity-color-extremely-rare { background: linear-gradient(135deg, #ff6b6b, #ffd93d, #6bcb77, #4d96ff, #9b59b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; }
+        
+        /* EMPTY STATE */
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-icon { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        .empty-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--text-secondary); }
+        
+        /* MODALS */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; overflow-y: auto; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-card); border-radius: 12px; width: 100%; max-width: 550px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-subtle); }
+        .modal-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg-card); z-index: 10; }
+        .modal-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; line-height: 1; }
+        .modal-close:hover { color: var(--text-primary); }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 0.8rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-label { display: block; font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+        .form-input { width: 100%; padding: 0.7rem 0.9rem; background: var(--bg-dark); border: 1px solid var(--border-subtle); border-radius: 4px; color: var(--text-primary); font-size: 0.9rem; font-family: inherit; }
+        .form-input:focus { outline: none; border-color: var(--accent-primary); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-input-file { padding: 1.5rem; text-align: center; border-style: dashed; cursor: pointer; }
+        .form-input-file:hover { border-color: var(--accent-primary); }
+        .image-info { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.4rem; }
+        #imagePreviewContainer { margin-top: 0.8rem; text-align: center; }
+        #imagePreview { max-width: 100%; max-height: 150px; border-radius: 4px; }
+        .btn-delete-image { margin-top: 0.5rem; padding: 0.4rem 0.8rem; font-size: 0.75rem; background: var(--danger); color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-delete-image:hover { background: #c0392b; }
+        
+        /* SETTINGS */
+        .settings-section { margin-bottom: 1.5rem; }
+        .settings-section h3 { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border-subtle); }
+        .color-options, .mode-options, .language-options { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .color-option { width: 40px; height: 40px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; position: relative; transition: transform 0.2s; }
+        .color-option:hover { transform: scale(1.1); }
+        .color-option.active { border-color: var(--text-primary); }
+        .color-option.active::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .color-gold { background: linear-gradient(135deg, #e8d5a3, #c9a962, #b87333); }
+        .color-blue { background: linear-gradient(135deg, #8bb8d9, #5b8fb9, #3d6a8a); }
+        .color-green { background: linear-gradient(135deg, #9bc4a9, #6b9b7a, #4a7a5a); }
+        .color-purple { background: linear-gradient(135deg, #c4a8d4, #9b7bb0, #7a5a90); }
+        .color-red { background: linear-gradient(135deg, #e0a0a0, #c47070, #a55050); }
+        .color-teal { background: linear-gradient(135deg, #8bc4c4, #5ba3a3, #3d7a7a); }
+        .mode-option, .language-option { flex: 1; padding: 0.8rem; background: var(--bg-dark); border: 2px solid var(--border-subtle); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.2s; min-width: 100px; }
+        .mode-option:hover, .language-option:hover { border-color: var(--accent-primary); }
+        .mode-option.active, .language-option.active { border-color: var(--accent-primary); background: rgba(201, 169, 98, 0.1); }
+        .mode-option-icon, .language-option-flag { font-size: 1.5rem; margin-bottom: 0.3rem; }
+        .mode-option-label, .language-option-label { font-size: 0.8rem; color: var(--text-secondary); }
+        .storage-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 0.8rem 0; }
+        .storage-stat { background: var(--bg-dark); padding: 0.6rem; border-radius: 6px; text-align: center; }
+        .storage-stat-value { font-size: 1.1rem; font-weight: 600; color: var(--accent-primary); }
+        .storage-stat-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
+        .storage-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .storage-actions .btn { flex: 1; min-width: 100px; justify-content: center; padding: 0.6rem; font-size: 0.75rem; }
+        
+        /* IMPORT INFO */
+        .import-info { background: rgba(201, 169, 98, 0.1); border: 1px solid var(--accent-primary); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .import-info h4 { color: var(--accent-primary); margin-bottom: 0.4rem; font-size: 0.85rem; }
+        .import-info p { font-size: 0.8rem; color: var(--text-secondary); }
+        
+        /* TOAST */
+        .toast { position: fixed; bottom: 1.5rem; right: 1.5rem; padding: 0.8rem 1.2rem; background: var(--bg-card); border: 1px solid var(--success); border-radius: 8px; display: flex; align-items: center; gap: 0.6rem; transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 2000; font-size: 0.9rem; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast-icon { color: var(--success); }
+        
+        /* LOADING */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 3000; flex-direction: column; gap: 1rem; }
+        .loading-overlay.active { display: flex; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border-subtle); border-top-color: var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: var(--text-secondary); font-size: 0.9rem; }
+        .progress-bar { width: 180px; height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-primary); width: 0%; transition: width 0.2s; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1400px) {
+            .view-list .camera-card { grid-template-columns: 80px minmax(200px, 1fr) 60px 100px 100px 90px 90px 90px 110px; }
+        }
+        @media (max-width: 1200px) {
+            .view-list .camera-card { grid-template-columns: 70px minmax(180px, 1fr) 55px 90px 90px 85px 85px 100px; gap: 0.6rem; }
+            .view-list .list-col:nth-child(5) { display: none; } /* Hide serial */
+        }
+        @media (max-width: 992px) {
+            .view-list .camera-card { grid-template-columns: 70px minmax(160px, 1fr) 55px 85px 80px 80px 100px; }
+            .view-list .list-col:nth-child(6) { display: none; } /* Hide source */
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .logo { font-size: 1.8rem; }
+            .stats-bar { gap: 1.5rem; }
+            .stat-value { font-size: 1.5rem; }
+            .actions, .filters { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+            .form-row { grid-template-columns: 1fr; }
+            .camera-grid { grid-template-columns: 1fr; }
+            .camera-grid.view-list { overflow-x: auto; }
+            .view-list .camera-card { min-width: 700px; grid-template-columns: 60px minmax(150px, 1fr) 50px 80px 75px 75px 90px; }
+            .storage-indicator { display: none; }
+        }
+    </style>
+</head>
+<body data-theme="gold" data-mode="dark">
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">Se încarcă...</div>
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    
+    <div class="container">
+        <header>
+            <div class="storage-indicator">
+                <span>💾</span>
+                <div class="storage-bar"><div class="storage-fill" id="storageBarFill"></div></div>
+                <span id="storageText">0 MB</span>
+            </div>
+            <button class="settings-btn" onclick="openSettingsModal()">⚙</button>
+            <h1 class="logo">Camera Arena</h1>
+            <p class="tagline"><span id="ownerDisplay">Merlinlx</span> • <span id="tagline">Colecția Personală de Aparate Foto</span></p>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalCameras">0</div>
+                <div class="stat-label" id="lblCameras">Aparate</div>
+                <div class="stat-filtered" id="filteredCameras"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalBrands">0</div>
+                <div class="stat-label" id="lblBrands">Mărci</div>
+                <div class="stat-filtered" id="filteredBrands"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalPurchaseValue">0 €</div>
+                <div class="stat-label" id="lblPurchaseValue">Valoare Achiziție</div>
+                <div class="stat-filtered" id="filteredPurchaseValue"></div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalCatalogValue">0 €</div>
+                <div class="stat-label" id="lblCatalogValue">Valoare Catalog</div>
+                <div class="stat-filtered" id="filteredCatalogValue"></div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-primary" onclick="openAddModal()"><span>+</span> <span>Adaugă Aparat</span></button>
+            <button class="btn btn-secondary" onclick="openImportModal()"><span>↑</span> <span>Import Excel</span></button>
+            <button class="btn btn-secondary" onclick="exportToExcel()"><span>↓</span> <span>Export Excel</span></button>
+            <button class="btn btn-secondary" onclick="exportToPDF()"><span>📄</span> <span>Export PDF</span></button>
+        </div>
+        
+        <div class="filters">
+            <div class="search-box"><input type="text" id="searchInput" placeholder="Caută..." oninput="filterCameras()"></div>
+            <select class="filter-select" id="filterType" onchange="filterCameras()"></select>
+            <select class="filter-select" id="filterFilmType" onchange="filterCameras()"></select>
+            <select class="filter-select" id="filterCountry" onchange="filterCameras()"></select>
+            <select class="filter-select" id="filterRarity" onchange="filterCameras()"></select>
+            <select class="filter-select" id="sortBy" onchange="filterCameras()"></select>
+            <div class="view-modes">
+                <button class="view-mode-btn active" data-view="tile" onclick="setViewMode('tile')">▦</button>
+                <button class="view-mode-btn" data-view="list" onclick="setViewMode('list')">☰</button>
+                <button class="view-mode-btn" data-view="compact" onclick="setViewMode('compact')">▤</button>
+            </div>
+        </div>
+        
+        <div class="camera-grid view-tile" id="cameraGrid"></div>
+        <div class="empty-state" id="emptyState" style="display:none;">
+            <div class="empty-icon">📷</div>
+            <h3 class="empty-title" id="emptyTitle">Niciun aparat în colecție</h3>
+            <p id="emptyText">Adaugă primul aparat sau importă din Excel.</p>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div class="modal-overlay" id="cameraModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Adaugă Aparat</h2>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="cameraForm">
+                    <input type="hidden" id="cameraId">
+                    <div class="form-group">
+                        <label class="form-label">Denumire *</label>
+                        <input type="text" class="form-input" id="cameraName" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Marca *</label>
+                            <input type="text" class="form-input" id="cameraBrand" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Model *</label>
+                            <input type="text" class="form-input" id="cameraModelInput" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tip</label>
+                            <select class="form-input" id="cameraType"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tip secundar</label>
+                            <select class="form-input" id="cameraType2"></select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">An fabricație</label>
+                            <input type="number" class="form-input" id="cameraYear" min="1800" max="2030">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Raritate</label>
+                            <select class="form-input" id="cameraRarity">
+                                <option value="">Selectează...</option>
+                                <option value="Comun">Comun</option>
+                                <option value="Neobișnuit">Neobișnuit</option>
+                                <option value="Rar">Rar</option>
+                                <option value="Foarte rar">Foarte rar</option>
+                                <option value="Extrem de rar">Extrem de rar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Țara de origine</label>
+                            <select class="form-input" id="cameraCountry">
+                                <option value="">Selectează...</option>
+                                <option value="DE">🇩🇪 Germania</option>
+                                <option value="JP">🇯🇵 Japonia</option>
+                                <option value="US">🇺🇸 SUA</option>
+                                <option value="GB">🇬🇧 Marea Britanie</option>
+                                <option value="FR">🇫🇷 Franța</option>
+                                <option value="IT">🇮🇹 Italia</option>
+                                <option value="SU">🇷🇺 URSS</option>
+                                <option value="RU">🇷🇺 Rusia</option>
+                                <option value="CN">🇨🇳 China</option>
+                                <option value="KR">🇰🇷 Coreea de Sud</option>
+                                <option value="TW">🇹🇼 Taiwan</option>
+                                <option value="AT">🇦🇹 Austria</option>
+                                <option value="CH">🇨🇭 Elveția</option>
+                                <option value="SE">🇸🇪 Suedia</option>
+                                <option value="NL">🇳🇱 Olanda</option>
+                                <option value="PL">🇵🇱 Polonia</option>
+                                <option value="CZ">🇨🇿 Cehia</option>
+                                <option value="HU">🇭🇺 Ungaria</option>
+                                <option value="RO">🇷🇴 România</option>
+                                <option value="DD">🇩🇪 Germania de Est (DDR)</option>
+                                <option value="XX">🌍 Altă țară</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tip film</label>
+                            <select class="form-input" id="cameraFilmType">
+                                <option value="">Selectează...</option>
+                                <option value="Plăci">Plăci (Glass Plates)</option>
+                                <option value="16mm">Film 16mm</option>
+                                <option value="35mm">Film 35mm</option>
+                                <option value="110">Film 110</option>
+                                <option value="116">Film 116</option>
+                                <option value="120">Film 120</option>
+                                <option value="122">Film 122</option>
+                                <option value="123">Film 123</option>
+                                <option value="126">Film 126</option>
+                                <option value="Cartuș 126">Cartuș 126</option>
+                                <option value="127">Film 127</option>
+                                <option value="620">Film 620</option>
+                                <option value="828">Film 828</option>
+                                <option value="Rapid">Casetă Rapid</option>
+                                <option value="DLC">Casetă DLC</option>
+                                <option value="APS">Film APS</option>
+                                <option value="Instant">Instant</option>
+                                <option value="Digital">Digital</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Număr serie</label>
+                            <input type="text" class="form-input" id="cameraSerial">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Stare</label>
+                            <select class="form-input" id="cameraStatus"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Funcțional</label>
+                            <select class="form-input" id="cameraFunctional">
+                                <option value="">Selectează...</option>
+                                <option value="da">Da</option>
+                                <option value="nu">Nu</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Proveniență</label>
+                        <input type="text" class="form-input" id="cameraSource">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Preț achiziție (€)</label>
+                            <input type="number" class="form-input" id="cameraPurchasePrice" min="0" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valoare catalog (€)</label>
+                            <input type="number" class="form-input" id="cameraCatalogValue" min="0" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Data achiziției</label>
+                        <input type="date" class="form-input" id="cameraPurchaseDate">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Fotografie</label>
+                        <input type="file" class="form-input form-input-file" id="cameraImage" accept="image/*" onchange="previewImage(event)">
+                        <p class="image-info">Imaginile se comprimă automat la ~80KB</p>
+                        <div id="imagePreviewContainer" style="display:none;">
+                            <img id="imagePreview">
+                            <p class="image-info" id="compressedSize"></p>
+                            <button type="button" class="btn btn-delete-image" onclick="deleteImage()">🗑️ Șterge imaginea</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Note</label>
+                        <textarea class="form-input" id="cameraNotes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Anulează</button>
+                <button class="btn btn-primary" onclick="saveCamera()">Salvează</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Import Excel</h2>
+                <button class="modal-close" onclick="closeImportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-info">
+                    <h4>ℹ️ Format acceptat</h4>
+                    <p>Coloane: Denumire, Marca, Model, Tip, An, Serie, Stare, Pret, Valoare Catalog</p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Selectează fișier</label>
+                    <input type="file" class="form-input form-input-file" id="importFile" accept=".xlsx,.xls">
+                </div>
+                <div id="importPreview" style="display:none;">
+                    <p style="color:var(--success);">✓ <span id="importCount">0</span> aparate găsite</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeImportModal()">Anulează</button>
+                <button class="btn btn-primary" onclick="processImport()" id="importBtn" disabled>Importă</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">⚙ Setări</h2>
+                <button class="modal-close" onclick="closeSettingsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-section">
+                    <h3>👤 Proprietar</h3>
+                    <div class="form-group" style="margin-bottom:0">
+                        <input type="text" class="form-input" id="ownerNameInput" value="Merlinlx" placeholder="Numele proprietarului" onchange="setOwnerName(this.value)">
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>🌐 Limbă</h3>
+                    <div class="language-options">
+                        <div class="language-option active" data-lang="ro" onclick="setLanguage('ro')">
+                            <div class="language-option-flag">🇷🇴</div>
+                            <div class="language-option-label">Română</div>
+                        </div>
+                        <div class="language-option" data-lang="en" onclick="setLanguage('en')">
+                            <div class="language-option-flag">🇬🇧</div>
+                            <div class="language-option-label">English</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>🎨 Culoare</h3>
+                    <div class="color-options">
+                        <div class="color-option color-gold active" data-theme="gold" onclick="setTheme('gold')"></div>
+                        <div class="color-option color-blue" data-theme="blue" onclick="setTheme('blue')"></div>
+                        <div class="color-option color-green" data-theme="green" onclick="setTheme('green')"></div>
+                        <div class="color-option color-purple" data-theme="purple" onclick="setTheme('purple')"></div>
+                        <div class="color-option color-red" data-theme="red" onclick="setTheme('red')"></div>
+                        <div class="color-option color-teal" data-theme="teal" onclick="setTheme('teal')"></div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>☀ Mod</h3>
+                    <div class="mode-options">
+                        <div class="mode-option active" data-mode="dark" onclick="setMode('dark')">
+                            <div class="mode-option-icon">🌙</div>
+                            <div class="mode-option-label">Întunecat</div>
+                        </div>
+                        <div class="mode-option" data-mode="light" onclick="setMode('light')">
+                            <div class="mode-option-icon">☀️</div>
+                            <div class="mode-option-label">Luminos</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>💾 Stocare (IndexedDB)</h3>
+                    <div class="storage-stats">
+                        <div class="storage-stat">
+                            <div class="storage-stat-value" id="dbCameras">0</div>
+                            <div class="storage-stat-label">Aparate</div>
+                        </div>
+                        <div class="storage-stat">
+                            <div class="storage-stat-value" id="dbSize">0 MB</div>
+                            <div class="storage-stat-label">Dimensiune</div>
+                        </div>
+                    </div>
+                    <div class="storage-actions">
+                        <button class="btn btn-secondary" onclick="exportBackup()">↓ Backup</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('backupFile').click()">↑ Restaurare</button>
+                        <input type="file" id="backupFile" accept=".json" style="display:none" onchange="importBackup(event)">
+                    </div>
+                    <div class="storage-actions" style="margin-top:0.5rem;">
+                        <button class="btn btn-secondary" onclick="migrateFromLocalStorage()">🔄 Migrare localStorage</button>
+                    </div>
+                </div>
+                <div class="settings-section">
+                    <h3>⚠️ Pericol</h3>
+                    <button class="btn btn-secondary" style="border-color:var(--danger);color:var(--danger);width:100%;" onclick="clearAllData()">🗑 Șterge toate datele</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeSettingsModal()">Închide</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span class="toast-icon">✓</span>
+        <span id="toastMessage"></span>
+    </div>
+
+<script>
+// ==================== INDEXEDDB ====================
+const DB_NAME = 'CameraArenaDB';
+const DB_VERSION = 1;
+let db = null;
+
+async function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => { db = request.result; resolve(db); };
+        request.onupgradeneeded = (e) => {
+            const database = e.target.result;
+            if (!database.objectStoreNames.contains('cameras')) database.createObjectStore('cameras', { keyPath: 'id' });
+            if (!database.objectStoreNames.contains('settings')) database.createObjectStore('settings', { keyPath: 'key' });
+        };
+    });
+}
+
+async function dbGetAll() {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('cameras', 'readonly');
+        const request = tx.objectStore('cameras').getAll();
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function dbPut(camera) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('cameras', 'readwrite');
+        const request = tx.objectStore('cameras').put(camera);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function dbDelete(id) {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('cameras', 'readwrite');
+        const request = tx.objectStore('cameras').delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function dbClear() {
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction('cameras', 'readwrite');
+        const request = tx.objectStore('cameras').clear();
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function dbGetSetting(key) {
+    return new Promise((resolve) => {
+        const tx = db.transaction('settings', 'readonly');
+        const request = tx.objectStore('settings').get(key);
+        request.onsuccess = () => resolve(request.result?.value);
+        request.onerror = () => resolve(null);
+    });
+}
+
+async function dbPutSetting(key, value) {
+    return new Promise((resolve) => {
+        const tx = db.transaction('settings', 'readwrite');
+        tx.objectStore('settings').put({ key, value });
+        tx.oncomplete = () => resolve();
+    });
+}
+
+// ==================== IMAGE COMPRESSION ====================
+async function compressImage(file, maxWidth = 1000, quality = 0.7) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let w = img.width, h = img.height;
+                if (w > maxWidth) { h = (h * maxWidth) / w; w = maxWidth; }
+                canvas.width = w; canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                let result = canvas.toDataURL('image/jpeg', quality);
+                let size = Math.round((result.length * 3) / 4 / 1024);
+                if (size > 100) { result = canvas.toDataURL('image/jpeg', 0.5); size = Math.round((result.length * 3) / 4 / 1024); }
+                if (size > 100) { result = canvas.toDataURL('image/jpeg', 0.3); size = Math.round((result.length * 3) / 4 / 1024); }
+                resolve({ data: result, size });
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// ==================== TRANSLATIONS ====================
+const i18n = {
+    ro: { tagline: 'Colecția Personală de Aparate Foto', cameras: 'Aparate', brands: 'Mărci', purchaseValue: 'Valoare Achiziție', catalogValue: 'Valoare Catalog', allTypes: 'Toate tipurile', allFilmTypes: 'Toate filmele', allRarities: 'Toate raritățile', allCountries: 'Toate țările', allConditions: 'Toate stările', condExcellent: 'Excelentă', condGood: 'Bună', condFair: 'Acceptabilă', condPoor: 'Necesită reparații', sortNewest: 'Cele mai recente', sortOldest: 'Cele mai vechi', sortNameAZ: 'Denumire A-Z', sortNameZA: 'Denumire Z-A', sortBrandAZ: 'Marcă A-Z', sortBrandZA: 'Marcă Z-A', sortYearDesc: 'An ↓', sortYearAsc: 'An ↑', sortPriceDesc: 'Preț ↓', sortPriceAsc: 'Preț ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', unknown: 'Necunoscut', selectOption: 'Selectează...', toastAdded: 'Aparat adăugat', toastUpdated: 'Aparat actualizat', toastDeleted: 'Aparat șters', toastImported: 'aparate importate', toastBackupSaved: 'Backup salvat', toastBackupRestored: 'aparate restaurate', toastMigrated: 'Date migrate', toastAllDeleted: 'Date șterse', confirmDelete: 'Ștergi acest aparat?', confirmDeleteAll: 'Ștergi TOATE datele?', alertRequired: 'Completează câmpurile obligatorii!', alertNoData: 'Nu există date.', loading: 'Se încarcă...', saving: 'Se salvează...', colYear: 'An', colType: 'Tip', colSerial: 'Serie', colSource: 'Proveniență', colPurchase: 'Achiziție', colCatalog: 'Catalog', colStatus: 'Stare', colRarity: 'Raritate', colFilmType: 'Film', colCountry: 'Țara' },
+    en: { tagline: 'Personal Camera Collection', cameras: 'Cameras', brands: 'Brands', purchaseValue: 'Purchase Value', catalogValue: 'Catalog Value', allTypes: 'All types', allFilmTypes: 'All film types', allRarities: 'All rarities', allCountries: 'All countries', allConditions: 'All conditions', condExcellent: 'Excellent', condGood: 'Good', condFair: 'Fair', condPoor: 'Needs repair', sortNewest: 'Most recent', sortOldest: 'Oldest', sortNameAZ: 'Name A-Z', sortNameZA: 'Name Z-A', sortBrandAZ: 'Brand A-Z', sortBrandZA: 'Brand Z-A', sortYearDesc: 'Year ↓', sortYearAsc: 'Year ↑', sortPriceDesc: 'Price ↓', sortPriceAsc: 'Price ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', unknown: 'Unknown', selectOption: 'Select...', toastAdded: 'Camera added', toastUpdated: 'Camera updated', toastDeleted: 'Camera deleted', toastImported: 'cameras imported', toastBackupSaved: 'Backup saved', toastBackupRestored: 'cameras restored', toastMigrated: 'Data migrated', toastAllDeleted: 'Data deleted', confirmDelete: 'Delete this camera?', confirmDeleteAll: 'Delete ALL data?', alertRequired: 'Fill required fields!', alertNoData: 'No data.', loading: 'Loading...', saving: 'Saving...', colYear: 'Year', colType: 'Type', colSerial: 'Serial', colSource: 'Source', colPurchase: 'Purchase', colCatalog: 'Catalog', colStatus: 'Status', colRarity: 'Rarity', colFilmType: 'Film', colCountry: 'Country' }
+};
+
+// ==================== DATA ====================
+let cameras = [];
+let filteredCameras = [];
+let settings = { theme: 'gold', mode: 'dark', viewMode: 'tile', language: 'ro', ownerName: 'Merlinlx' };
+let importData = [];
+let currentImageData = null;
+
+function t(key) { return i18n[settings.language]?.[key] || i18n.ro[key] || key; }
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded', async () => {
+    showLoading(t('loading'));
+    try {
+        await initDB();
+        const savedSettings = await dbGetSetting('appSettings');
+        if (savedSettings) settings = { ...settings, ...savedSettings };
+        cameras = await dbGetAll();
+        filteredCameras = cameras;
+        applySettings();
+        populateDropdowns();
+        filterCameras();
+        updateStats();
+        updateStorageInfo();
+    } catch (err) { console.error(err); }
+    hideLoading();
+});
+
+function showLoading(text) { document.getElementById('loadingText').textContent = text || ''; document.getElementById('loadingOverlay').classList.add('active'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('active'); }
+function setProgress(p) { document.getElementById('progressFill').style.width = p + '%'; }
+
+function applySettings() {
+    document.body.setAttribute('data-theme', settings.theme);
+    document.body.setAttribute('data-mode', settings.mode);
+    document.querySelectorAll('.color-option').forEach(el => el.classList.toggle('active', el.dataset.theme === settings.theme));
+    document.querySelectorAll('.mode-option').forEach(el => el.classList.toggle('active', el.dataset.mode === settings.mode));
+    document.querySelectorAll('.language-option').forEach(el => el.classList.toggle('active', el.dataset.lang === settings.language));
+    document.querySelectorAll('.view-mode-btn').forEach(el => el.classList.toggle('active', el.dataset.view === settings.viewMode));
+    const grid = document.getElementById('cameraGrid');
+    grid.classList.remove('view-tile', 'view-list', 'view-compact');
+    grid.classList.add('view-' + settings.viewMode);
+    document.getElementById('tagline').textContent = t('tagline');
+    document.getElementById('ownerDisplay').textContent = settings.ownerName || 'Merlinlx';
+    document.getElementById('ownerNameInput').value = settings.ownerName || 'Merlinlx';
+    document.getElementById('lblCameras').textContent = t('cameras');
+    document.getElementById('lblBrands').textContent = t('brands');
+    document.getElementById('lblPurchaseValue').textContent = t('purchaseValue');
+    document.getElementById('lblCatalogValue').textContent = t('catalogValue');
+}
+
+function populateDropdowns() {
+    const types = ['SLR Film', 'SLR Digital', 'Mirrorless', 'Rangefinder', 'Compact Film', 'Compact Digital', 'Medium Format', 'Large Format', 'Instant', 'TLR', 'Box Camera', 'Folding Camera', 'Micro-Spy', 'View Camera', 'Motor cu arc', 'Altele'];
+    const filmTypes = ['Plăci', '16mm', '35mm', '110', '116', '120', '122', '123', '126', 'Cartuș 126', '127', '620', '828', 'Rapid', 'DLC', 'APS', 'Instant', 'Digital'];
+    const rarities = ['Comun', 'Neobișnuit', 'Rar', 'Foarte rar', 'Extrem de rar'];
+    const countries = [
+        {code: 'DE', flag: '🇩🇪', name: 'Germania'},
+        {code: 'JP', flag: '🇯🇵', name: 'Japonia'},
+        {code: 'US', flag: '🇺🇸', name: 'SUA'},
+        {code: 'GB', flag: '🇬🇧', name: 'Marea Britanie'},
+        {code: 'FR', flag: '🇫🇷', name: 'Franța'},
+        {code: 'IT', flag: '🇮🇹', name: 'Italia'},
+        {code: 'SU', flag: '🇷🇺', name: 'URSS'},
+        {code: 'RU', flag: '🇷🇺', name: 'Rusia'},
+        {code: 'CN', flag: '🇨🇳', name: 'China'},
+        {code: 'KR', flag: '🇰🇷', name: 'Coreea de Sud'},
+        {code: 'TW', flag: '🇹🇼', name: 'Taiwan'},
+        {code: 'AT', flag: '🇦🇹', name: 'Austria'},
+        {code: 'CH', flag: '🇨🇭', name: 'Elveția'},
+        {code: 'SE', flag: '🇸🇪', name: 'Suedia'},
+        {code: 'NL', flag: '🇳🇱', name: 'Olanda'},
+        {code: 'PL', flag: '🇵🇱', name: 'Polonia'},
+        {code: 'CZ', flag: '🇨🇿', name: 'Cehia'},
+        {code: 'HU', flag: '🇭🇺', name: 'Ungaria'},
+        {code: 'RO', flag: '🇷🇴', name: 'România'},
+        {code: 'DD', flag: '🇩🇪', name: 'Germania de Est'},
+        {code: 'XX', flag: '🌍', name: 'Altă țară'}
+    ];
+    document.getElementById('filterType').innerHTML = `<option value="">${t('allTypes')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('filterFilmType').innerHTML = `<option value="">${t('allFilmTypes')}</option>` + filmTypes.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('filterCountry').innerHTML = `<option value="">${t('allCountries')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}</option>`).join('');
+    document.getElementById('filterRarity').innerHTML = `<option value="">${t('allRarities')}</option>` + rarities.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('sortBy').innerHTML = `<option value="year_asc">${t('sortYearAsc')}</option><option value="year_desc">${t('sortYearDesc')}</option><option value="dateAdded_desc">${t('sortNewest')}</option><option value="dateAdded_asc">${t('sortOldest')}</option><option value="name_asc">${t('sortNameAZ')}</option><option value="name_desc">${t('sortNameZA')}</option><option value="brand_asc">${t('sortBrandAZ')}</option><option value="brand_desc">${t('sortBrandZA')}</option><option value="purchasePrice_desc">${t('sortPriceDesc')}</option><option value="purchasePrice_asc">${t('sortPriceAsc')}</option><option value="catalogValue_desc">${t('sortCatalogDesc')}</option><option value="catalogValue_asc">${t('sortCatalogAsc')}</option>`;
+    document.getElementById('cameraType').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('cameraType2').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('cameraStatus').innerHTML = `<option value="">${t('selectOption')}</option><option value="Excelentă">${t('condExcellent')}</option><option value="Bună">${t('condGood')}</option><option value="Acceptabilă">${t('condFair')}</option><option value="Necesită reparații">${t('condPoor')}</option>`;
+    if (typeof twemoji !== 'undefined') {
+        twemoji.parse(document.getElementById('filterCountry'));
+        twemoji.parse(document.getElementById('cameraCountry'));
+    }
+}
+
+async function setLanguage(lang) { settings.language = lang; await dbPutSetting('appSettings', settings); document.querySelectorAll('.language-option').forEach(el => el.classList.toggle('active', el.dataset.lang === lang)); applySettings(); populateDropdowns(); filterCameras(); }
+async function setTheme(theme) { settings.theme = theme; document.body.setAttribute('data-theme', theme); document.querySelectorAll('.color-option').forEach(el => el.classList.toggle('active', el.dataset.theme === theme)); await dbPutSetting('appSettings', settings); }
+async function setMode(mode) { settings.mode = mode; document.body.setAttribute('data-mode', mode); document.querySelectorAll('.mode-option').forEach(el => el.classList.toggle('active', el.dataset.mode === mode)); await dbPutSetting('appSettings', settings); }
+async function setOwnerName(name) { settings.ownerName = name.trim() || 'Merlinlx'; document.getElementById('ownerDisplay').textContent = settings.ownerName; await dbPutSetting('appSettings', settings); showToast('Proprietar actualizat'); }
+function setViewMode(mode) { 
+    settings.viewMode = mode; 
+    const grid = document.getElementById('cameraGrid'); 
+    grid.classList.remove('view-tile', 'view-list', 'view-compact', 'virtual-scroll'); 
+    grid.removeEventListener('scroll', handleVirtualScroll);
+    virtualScrollData = null;
+    grid.classList.add('view-' + mode); 
+    document.querySelectorAll('.view-mode-btn').forEach(el => el.classList.toggle('active', el.dataset.view === mode)); 
+    dbPutSetting('appSettings', settings); 
+    filterCameras(); 
+}
+
+function updateStorageInfo() {
+    const total = cameras.reduce((s, c) => s + JSON.stringify(c).length, 0);
+    const mb = (total / 1024 / 1024).toFixed(2);
+    document.getElementById('storageText').textContent = mb + ' MB';
+    document.getElementById('dbCameras').textContent = cameras.length;
+    document.getElementById('dbSize').textContent = mb + ' MB';
+    document.getElementById('storageBarFill').style.width = Math.min((total / (500 * 1024 * 1024)) * 100, 100) + '%';
+}
+
+function updateStats() {
+    document.getElementById('totalCameras').textContent = cameras.length;
+    document.getElementById('totalBrands').textContent = new Set(cameras.map(c => c.brand).filter(Boolean)).size;
+    document.getElementById('totalPurchaseValue').textContent = cameras.reduce((s, c) => s + (parseFloat(c.purchasePrice) || 0), 0).toFixed(0) + ' €';
+    document.getElementById('totalCatalogValue').textContent = cameras.reduce((s, c) => s + (parseFloat(c.catalogValue) || 0), 0).toFixed(0) + ' €';
+}
+
+// ==================== RENDER ====================
+const VIRTUAL_THRESHOLD = 100; // Use virtual scroll if more than 100 items
+const ITEM_HEIGHT = 70; // Height of each list item in pixels
+const BUFFER_ITEMS = 5; // Extra items to render above/below viewport
+
+let virtualScrollData = null;
+
+function renderCameras(list = null) {
+    const grid = document.getElementById('cameraGrid');
+    const empty = document.getElementById('emptyState');
+    const data = list || cameras;
+    
+    if (data.length === 0) { 
+        grid.innerHTML = ''; 
+        grid.classList.remove('virtual-scroll');
+        empty.style.display = 'block'; 
+        return; 
+    }
+    empty.style.display = 'none';
+    
+    // Use virtual scrolling for list view with many items
+    if (settings.viewMode === 'list' && data.length > VIRTUAL_THRESHOLD) {
+        renderVirtualList(data);
+    } else {
+        grid.classList.remove('virtual-scroll');
+        grid.removeEventListener('scroll', handleVirtualScroll);
+        virtualScrollData = null;
+        grid.innerHTML = data.map(c => renderCard(c)).join('');
+        if (typeof twemoji !== 'undefined') twemoji.parse(grid);
+    }
+}
+
+function renderVirtualList(data) {
+    const grid = document.getElementById('cameraGrid');
+    grid.classList.add('virtual-scroll');
+    
+    const totalHeight = data.length * ITEM_HEIGHT;
+    const viewportHeight = grid.clientHeight || 600;
+    
+    virtualScrollData = {
+        items: data,
+        totalHeight: totalHeight,
+        viewportHeight: viewportHeight
+    };
+    
+    grid.innerHTML = `<div class="virtual-scroll-content" style="height: ${totalHeight}px;"></div>`;
+    grid.removeEventListener('scroll', handleVirtualScroll);
+    grid.addEventListener('scroll', handleVirtualScroll);
+    
+    // Initial render
+    updateVirtualList();
+}
+
+function handleVirtualScroll() {
+    if (virtualScrollData) {
+        requestAnimationFrame(updateVirtualList);
+    }
+}
+
+function updateVirtualList() {
+    if (!virtualScrollData) return;
+    
+    const grid = document.getElementById('cameraGrid');
+    const content = grid.querySelector('.virtual-scroll-content');
+    if (!content) return;
+    
+    const scrollTop = grid.scrollTop;
+    const viewportHeight = grid.clientHeight;
+    
+    const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER_ITEMS);
+    const endIndex = Math.min(
+        virtualScrollData.items.length,
+        Math.ceil((scrollTop + viewportHeight) / ITEM_HEIGHT) + BUFFER_ITEMS
+    );
+    
+    const visibleItems = virtualScrollData.items.slice(startIndex, endIndex);
+    
+    let html = '';
+    visibleItems.forEach((c, i) => {
+        const actualIndex = startIndex + i;
+        const top = actualIndex * ITEM_HEIGHT;
+        const cardHtml = renderCard(c).replace('class="camera-card"', `class="camera-card" style="top: ${top}px;"`);
+        html += cardHtml;
+    });
+    
+    content.innerHTML = html;
+    if (typeof twemoji !== 'undefined') twemoji.parse(content);
+}
+
+function renderCard(c) {
+    const statusClass = { 'Excelentă': 'excellent', 'Bună': 'good', 'Acceptabilă': 'fair', 'Necesită reparații': 'poor' }[c.status] || '';
+    const statusText = { 'Excelentă': t('condExcellent'), 'Bună': t('condGood'), 'Acceptabilă': t('condFair'), 'Necesită reparații': t('condPoor') }[c.status] || '';
+    const rarityClass = { 'Comun': 'common', 'Neobișnuit': 'uncommon', 'Rar': 'rare', 'Foarte rar': 'very-rare', 'Extrem de rar': 'extremely-rare' }[c.rarity] || '';
+    const countryFlags = { 'DE': '🇩🇪', 'JP': '🇯🇵', 'US': '🇺🇸', 'GB': '🇬🇧', 'FR': '🇫🇷', 'IT': '🇮🇹', 'SU': '🇷🇺', 'RU': '🇷🇺', 'CN': '🇨🇳', 'KR': '🇰🇷', 'TW': '🇹🇼', 'AT': '🇦🇹', 'CH': '🇨🇭', 'SE': '🇸🇪', 'NL': '🇳🇱', 'PL': '🇵🇱', 'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'DD': '🇩🇪', 'XX': '🌍' };
+    const countryFlag = countryFlags[c.country] || '';
+    const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent((c.brand || '') + ' ' + (c.model || ''))}`;
+    
+    // Format types display
+    const typesDisplay = [c.type, c.type2].filter(Boolean).join(' / ') || '—';
+    
+    // Badges HTML
+    let badgesHtml = '<div class="badges">';
+    if (c.country && countryFlag) badgesHtml += `<span class="badge badge-country" title="${c.country}">${countryFlag}</span>`;
+    if (c.status) badgesHtml += `<span class="badge badge-status badge-${statusClass}">${statusText}</span>`;
+    if (c.functional) badgesHtml += `<span class="badge badge-functional badge-func-${c.functional === 'da' ? 'yes' : 'no'}">${c.functional === 'da' ? '✓' : '✗'}</span>`;
+    if (c.rarity && rarityClass) badgesHtml += `<span class="badge badge-rarity badge-rarity-${rarityClass}">${c.rarity}</span>`;
+    badgesHtml += '</div>';
+    
+    // Image HTML
+    const imageHtml = c.image 
+        ? `<div class="camera-image"><img src="${c.image}" loading="lazy" alt="${esc(c.name)}"></div>`
+        : `<div class="camera-image no-image"></div>`;
+    
+    // Actions HTML
+    const actionsHtml = `<div class="camera-actions">
+        <button class="btn-icon btn-pdf" onclick="event.stopPropagation();exportCameraPDF('${c.id}')" title="Fișă PDF">📄</button>
+        <button class="btn-icon btn-ebay" onclick="event.stopPropagation();window.open('${ebayUrl}','_blank')" title="Caută pe eBay">🔍</button>
+        <button class="btn-icon btn-edit" onclick="event.stopPropagation();editCamera('${c.id}')" title="Editează">✎</button>
+        <button class="btn-icon btn-delete" onclick="event.stopPropagation();deleteCamera('${c.id}')" title="Șterge">✕</button>
+    </div>`;
+    
+    // List view - columns: Image | Name | Year | Type(s) | Film | Rarity | Catalog | Actions
+    const listCols = `
+        ${imageHtml}
+        <div class="camera-content"><div class="camera-name" title="${esc(c.name)}">${esc(c.name)}</div>${badgesHtml}</div>
+        <div class="list-col"><span class="list-col-label">${t('colYear')}</span><span class="list-col-value">${c.year || '—'}</span></div>
+        <div class="list-col"><span class="list-col-label">${t('colType')}</span><span class="list-col-value" title="${esc(typesDisplay)}">${esc(typesDisplay)}</span></div>
+        <div class="list-col"><span class="list-col-label">${t('colFilmType')}</span><span class="list-col-value">${esc(c.filmType || '—')}</span></div>
+        <div class="list-col"><span class="list-col-label">${t('colRarity')}</span><span class="list-col-value" title="${esc(c.rarity || '')}">${esc(c.rarity || '—')}</span></div>
+        <div class="list-col"><span class="list-col-label">${t('colCatalog')}</span><span class="list-col-value price">${c.catalogValue ? c.catalogValue + '€' : '—'}</span></div>
+        ${actionsHtml}
+    `;
+    
+    // Tile/Compact view
+    const countryNames = { 'DE': 'Germania', 'JP': 'Japonia', 'US': 'SUA', 'GB': 'Marea Britanie', 'FR': 'Franța', 'IT': 'Italia', 'SU': 'URSS', 'RU': 'Rusia', 'CN': 'China', 'KR': 'Coreea de Sud', 'TW': 'Taiwan', 'AT': 'Austria', 'CH': 'Elveția', 'SE': 'Suedia', 'NL': 'Olanda', 'PL': 'Polonia', 'CZ': 'Cehia', 'HU': 'Ungaria', 'RO': 'România', 'DD': 'Germania de Est', 'XX': 'Altă țară' };
+    const countryDisplay = c.country ? `<span class="country-display">${countryFlag} ${countryNames[c.country] || c.country}</span>` : '—';
+    const tileCols = `
+        ${badgesHtml}
+        ${actionsHtml}
+        ${imageHtml}
+        <div class="camera-content">
+            <div class="camera-brand">${esc(c.brand || t('unknown'))}</div>
+            <div class="camera-name">${esc(c.name)}</div>
+            <div class="camera-meta">${esc(typesDisplay)}${(c.type || c.type2) && c.year ? ' • ' : ''}${c.year || ''}</div>
+            <div class="camera-details">
+                <div class="detail-item"><span class="detail-label">${t('colFilmType')}</span><span class="detail-value">${esc(c.filmType || '—')}</span></div>
+                <div class="detail-item"><span class="detail-label">${t('colCountry')}</span><span class="detail-value">${countryDisplay}</span></div>
+                <div class="detail-item"><span class="detail-label">${t('colStatus')}</span><span class="detail-value">${statusText || '—'}</span></div>
+                <div class="detail-item"><span class="detail-label">Funcțional</span><span class="detail-value">${c.functional === 'da' ? 'Da ✓' : c.functional === 'nu' ? 'Nu ✗' : '—'}</span></div>
+            </div>
+            <div class="camera-values">
+                <div class="value-item"><div class="value-label">${t('colRarity')}</div><div class="value-amount rarity-color-${rarityClass}">${esc(c.rarity || '—')}</div></div>
+                <div class="value-item"><div class="value-label">${t('colCatalog')}</div><div class="value-amount">${c.catalogValue ? c.catalogValue + ' €' : '—'}</div></div>
+            </div>
+        </div>
+    `;
+    
+    const isListView = settings.viewMode === 'list';
+    return `<div class="camera-card" data-id="${c.id}">${isListView ? listCols : tileCols}</div>`;
+}
+
+function filterCameras() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const type = document.getElementById('filterType').value;
+    const filmType = document.getElementById('filterFilmType').value;
+    const country = document.getElementById('filterCountry').value;
+    const rarity = document.getElementById('filterRarity').value;
+    const [sortBy, sortOrder] = document.getElementById('sortBy').value.split('_');
+    let filtered = cameras.filter(c => {
+        const matchSearch = !search || [c.name, c.brand, c.model, c.notes].some(f => (f || '').toLowerCase().includes(search));
+        const matchType = !type || c.type === type || c.type2 === type;
+        const matchFilmType = !filmType || c.filmType === filmType;
+        const matchCountry = !country || c.country === country;
+        const matchRarity = !rarity || c.rarity === rarity;
+        return matchSearch && matchType && matchFilmType && matchCountry && matchRarity;
+    });
+    filtered.sort((a, b) => {
+        let cmp = 0;
+        switch(sortBy) {
+            case 'name': cmp = (a.name || '').localeCompare(b.name || ''); break;
+            case 'brand': cmp = (a.brand || '').localeCompare(b.brand || ''); break;
+            case 'year': cmp = (a.year || 0) - (b.year || 0); break;
+            case 'purchasePrice': cmp = (a.purchasePrice || 0) - (b.purchasePrice || 0); break;
+            case 'catalogValue': cmp = (a.catalogValue || 0) - (b.catalogValue || 0); break;
+            default: cmp = (a.dateAdded || 0) - (b.dateAdded || 0);
+        }
+        return sortOrder === 'desc' ? -cmp : cmp;
+    });
+    filteredCameras = filtered;
+    updateFilteredStats();
+    renderCameras(filtered);
+}
+
+function updateFilteredStats() {
+    const isFiltered = filteredCameras.length < cameras.length;
+    if (isFiltered && cameras.length > 0) {
+        const fCount = filteredCameras.length;
+        const fBrands = new Set(filteredCameras.map(c => c.brand).filter(Boolean)).size;
+        const fPurchase = filteredCameras.reduce((s, c) => s + (parseFloat(c.purchasePrice) || 0), 0).toFixed(0);
+        const fCatalog = filteredCameras.reduce((s, c) => s + (parseFloat(c.catalogValue) || 0), 0).toFixed(0);
+        document.getElementById('filteredCameras').textContent = `Selecție: ${fCount}`;
+        document.getElementById('filteredBrands').textContent = `Selecție: ${fBrands}`;
+        document.getElementById('filteredPurchaseValue').textContent = `Selecție: ${fPurchase} €`;
+        document.getElementById('filteredCatalogValue').textContent = `Selecție: ${fCatalog} €`;
+    } else {
+        document.getElementById('filteredCameras').textContent = '';
+        document.getElementById('filteredBrands').textContent = '';
+        document.getElementById('filteredPurchaseValue').textContent = '';
+        document.getElementById('filteredCatalogValue').textContent = '';
+    }
+}
+
+// ==================== CAMERA MODAL ====================
+function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Adaugă Aparat';
+    document.getElementById('cameraForm').reset();
+    document.getElementById('cameraId').value = '';
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    currentImageData = null;
+    document.getElementById('cameraModal').classList.add('active');
+}
+
+function closeModal() { document.getElementById('cameraModal').classList.remove('active'); }
+
+function editCamera(id) {
+    const c = cameras.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('modalTitle').textContent = 'Editează Aparat';
+    document.getElementById('cameraId').value = c.id;
+    document.getElementById('cameraName').value = c.name || '';
+    document.getElementById('cameraBrand').value = c.brand || '';
+    document.getElementById('cameraModelInput').value = c.model || '';
+    document.getElementById('cameraType').value = c.type || '';
+    document.getElementById('cameraType2').value = c.type2 || '';
+    document.getElementById('cameraYear').value = c.year || '';
+    document.getElementById('cameraSerial').value = c.serial || '';
+    document.getElementById('cameraStatus').value = c.status || '';
+    document.getElementById('cameraFunctional').value = c.functional || '';
+    document.getElementById('cameraRarity').value = c.rarity || '';
+    document.getElementById('cameraCountry').value = c.country || '';
+    document.getElementById('cameraFilmType').value = c.filmType || '';
+    document.getElementById('cameraPurchasePrice').value = c.purchasePrice || '';
+    document.getElementById('cameraCatalogValue').value = c.catalogValue || '';
+    document.getElementById('cameraPurchaseDate').value = c.purchaseDate || '';
+    document.getElementById('cameraSource').value = c.source || '';
+    document.getElementById('cameraNotes').value = c.notes || '';
+    currentImageData = c.image || null;
+    if (c.image) {
+        document.getElementById('imagePreview').src = c.image;
+        document.getElementById('imagePreviewContainer').style.display = 'block';
+        document.getElementById('compressedSize').textContent = '~' + Math.round((c.image.length * 3) / 4 / 1024) + ' KB';
+    } else {
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+    }
+    document.getElementById('cameraModal').classList.add('active');
+}
+
+async function deleteCamera(id) {
+    if (!confirm(t('confirmDelete'))) return;
+    await dbDelete(id);
+    cameras = cameras.filter(c => c.id !== id);
+    filterCameras();
+    updateStats();
+    updateStorageInfo();
+    showToast(t('toastDeleted'));
+}
+
+function deleteImage() {
+    currentImageData = null;
+    document.getElementById('cameraImage').value = '';
+    document.getElementById('imagePreview').src = '';
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('compressedSize').textContent = '';
+}
+
+async function saveCamera() {
+    const id = document.getElementById('cameraId').value;
+    const name = document.getElementById('cameraName').value.trim();
+    const brand = document.getElementById('cameraBrand').value.trim();
+    const model = document.getElementById('cameraModelInput').value.trim();
+    if (!name || !brand || !model) { alert(t('alertRequired')); return; }
+    
+    showLoading(t('saving'));
+    const data = {
+        id: id || 'cam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        name, brand, model,
+        type: document.getElementById('cameraType').value,
+        type2: document.getElementById('cameraType2').value,
+        year: document.getElementById('cameraYear').value ? parseInt(document.getElementById('cameraYear').value) : null,
+        serial: document.getElementById('cameraSerial').value.trim(),
+        status: document.getElementById('cameraStatus').value,
+        functional: document.getElementById('cameraFunctional').value,
+        rarity: document.getElementById('cameraRarity').value,
+        country: document.getElementById('cameraCountry').value,
+        filmType: document.getElementById('cameraFilmType').value,
+        purchasePrice: document.getElementById('cameraPurchasePrice').value ? parseFloat(document.getElementById('cameraPurchasePrice').value) : null,
+        catalogValue: document.getElementById('cameraCatalogValue').value ? parseFloat(document.getElementById('cameraCatalogValue').value) : null,
+        purchaseDate: document.getElementById('cameraPurchaseDate').value,
+        source: document.getElementById('cameraSource').value.trim(),
+        notes: document.getElementById('cameraNotes').value.trim(),
+        image: currentImageData,
+        dateAdded: id ? cameras.find(c => c.id === id)?.dateAdded : Date.now()
+    };
+    
+    await dbPut(data);
+    if (id) {
+        const idx = cameras.findIndex(c => c.id === id);
+        cameras[idx] = data;
+    } else {
+        cameras.push(data);
+    }
+    
+    filterCameras();
+    updateStats();
+    updateStorageInfo();
+    closeModal();
+    hideLoading();
+    showToast(id ? t('toastUpdated') : t('toastAdded'));
+}
+
+async function previewImage(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    showLoading('Comprimare...');
+    const result = await compressImage(file);
+    currentImageData = result.data;
+    document.getElementById('imagePreview').src = result.data;
+    document.getElementById('imagePreviewContainer').style.display = 'block';
+    document.getElementById('compressedSize').textContent = '~' + result.size + ' KB';
+    hideLoading();
+}
+
+// ==================== IMPORT/EXPORT ====================
+function openImportModal() { document.getElementById('importModal').classList.add('active'); document.getElementById('importFile').value = ''; document.getElementById('importPreview').style.display = 'none'; document.getElementById('importBtn').disabled = true; importData = []; }
+function closeImportModal() { document.getElementById('importModal').classList.remove('active'); }
+function openSettingsModal() { document.getElementById('settingsModal').classList.add('active'); updateStorageInfo(); }
+function closeSettingsModal() { document.getElementById('settingsModal').classList.remove('active'); }
+
+document.getElementById('importFile').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const json = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+            importData = json.map(r => ({
+                name: r.Denumire || r.Name || r.name || '',
+                brand: r.Marca || r.Brand || r.brand || '',
+                model: r.Model || r.model || '',
+                type: r.Tip || r.Type || r.type || '',
+                year: r.An || r.Year || r.year || '',
+                serial: r.Serie || r.Serial || r.serial || '',
+                status: r.Stare || r.Condition || '',
+                functional: r.Functional || r.functional || '',
+                purchasePrice: r.Pret || r['Pret Achizitie'] || r.Price || '',
+                catalogValue: r['Valoare Catalog'] || r.Valoare || r.Value || '',
+                source: r.Provenienta || r.Source || '',
+                notes: r.Note || r.Notes || ''
+            })).filter(x => x.name);
+            document.getElementById('importCount').textContent = importData.length;
+            document.getElementById('importPreview').style.display = 'block';
+            document.getElementById('importBtn').disabled = importData.length === 0;
+        } catch(err) { alert('Eroare la citire fișier'); console.error(err); }
+    };
+    reader.readAsArrayBuffer(file);
+});
+
+async function processImport() {
+    if (importData.length === 0) return;
+    showLoading(t('saving'));
+    setProgress(0);
+    for (let i = 0; i < importData.length; i++) {
+        const item = importData[i];
+        const cam = {
+            id: 'cam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+            name: item.name,
+            brand: item.brand || item.name.split(' ')[0],
+            model: item.model || item.name.split(' ').slice(1).join(' '),
+            type: item.type,
+            year: item.year ? parseInt(item.year) : null,
+            serial: item.serial,
+            status: item.status,
+            functional: item.functional,
+            purchasePrice: item.purchasePrice ? parseFloat(item.purchasePrice) : null,
+            catalogValue: item.catalogValue ? parseFloat(item.catalogValue) : null,
+            source: item.source,
+            notes: item.notes,
+            dateAdded: Date.now() + i
+        };
+        await dbPut(cam);
+        cameras.push(cam);
+        setProgress(((i + 1) / importData.length) * 100);
+    }
+    filterCameras();
+    updateStats();
+    updateStorageInfo();
+    closeImportModal();
+    hideLoading();
+    showToast(importData.length + ' ' + t('toastImported'));
+}
+
+function exportToExcel() {
+    const dataToExport = filteredCameras.length > 0 ? filteredCameras : cameras;
+    if (dataToExport.length === 0) { alert(t('alertNoData')); return; }
+    const countryNames = { 'DE': 'Germania', 'JP': 'Japonia', 'US': 'SUA', 'GB': 'Marea Britanie', 'FR': 'Franța', 'IT': 'Italia', 'SU': 'URSS', 'RU': 'Rusia', 'CN': 'China', 'KR': 'Coreea de Sud', 'TW': 'Taiwan', 'AT': 'Austria', 'CH': 'Elveția', 'SE': 'Suedia', 'NL': 'Olanda', 'PL': 'Polonia', 'CZ': 'Cehia', 'HU': 'Ungaria', 'RO': 'România', 'DD': 'Germania de Est', 'XX': 'Altă țară' };
+    const data = dataToExport.map(c => ({
+        Denumire: c.name, Marca: c.brand, Model: c.model, Tip: c.type, 'Tip secundar': c.type2, An: c.year,
+        Tara: countryNames[c.country] || c.country || '', 'Tip film': c.filmType, Serie: c.serial, Stare: c.status, Functional: c.functional, Raritate: c.rarity,
+        Pret: c.purchasePrice, 'Valoare Catalog': c.catalogValue,
+        Provenienta: c.source, Note: c.notes
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Cameras');
+    const filename = filteredCameras.length < cameras.length 
+        ? 'CameraArena_Selectie_' + dataToExport.length + '_' + new Date().toISOString().split('T')[0] + '.xlsx'
+        : 'CameraArena_' + new Date().toISOString().split('T')[0] + '.xlsx';
+    XLSX.writeFile(wb, filename);
+    showToast('Export ' + dataToExport.length + ' aparate');
+}
+
+function exportToPDF() {
+    const dataToExport = filteredCameras.length > 0 ? filteredCameras : cameras;
+    if (dataToExport.length === 0) { alert(t('alertNoData')); return; }
+    const isFiltered = filteredCameras.length < cameras.length && filteredCameras.length > 0;
+    const title = isFiltered ? `Camera Arena - Selecție (${dataToExport.length} aparate)` : 'Camera Arena';
+    const ownerName = settings.ownerName || 'Merlinlx';
+    
+    const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title><style>
+        body{font-family:Georgia,serif;padding:2rem;max-width:1200px;margin:0 auto}
+        h1{text-align:center;color:#8B7355;margin-bottom:0.3rem}
+        .owner{text-align:center;font-size:1.1rem;color:#666;margin-bottom:0.3rem}
+        .subtitle{text-align:center;color:#999;margin-bottom:2rem;font-size:0.9rem}
+        .stats{display:flex;justify-content:center;gap:2rem;margin-bottom:2rem;padding:1rem;background:#f9f9f9;border-radius:8px}
+        .stat{text-align:center}
+        .stat-value{font-size:1.5rem;font-weight:bold;color:#8B7355}
+        .stat-label{font-size:0.75rem;color:#666;text-transform:uppercase}
+        table{width:100%;border-collapse:collapse;font-size:0.8rem}
+        th,td{border:1px solid #ddd;padding:0.5rem;text-align:left}
+        th{background:#8B7355;color:white}
+        tr:nth-child(even){background:#f9f9f9}
+        .func-yes{color:green}
+        .func-no{color:red}
+        .no-print{text-align:center;margin-bottom:1rem}
+        .no-print button{padding:0.8rem 2rem;font-size:1rem;cursor:pointer;background:#8B7355;color:white;border:none;border-radius:4px;margin:0 0.5rem}
+        .no-print button:hover{background:#6d5a43}
+        @media print{.no-print{display:none}body{padding:1rem}table{font-size:0.7rem}}
+    </style></head><body>
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Printează</button>
+        <button onclick="window.close()">✕ Închide</button>
+    </div>
+    <h1>${title}</h1>
+    <p class="owner">Colecția: ${esc(ownerName)}</p>
+    <p class="subtitle">${new Date().toLocaleDateString('ro-RO')}</p>
+    <div class="stats">
+        <div class="stat"><div class="stat-value">${dataToExport.length}</div><div class="stat-label">Aparate</div></div>
+        <div class="stat"><div class="stat-value">${new Set(dataToExport.map(c=>c.brand).filter(Boolean)).size}</div><div class="stat-label">Mărci</div></div>
+        <div class="stat"><div class="stat-value">${dataToExport.reduce((s,c)=>s+(parseFloat(c.purchasePrice)||0),0).toFixed(0)} €</div><div class="stat-label">Achiziție</div></div>
+        <div class="stat"><div class="stat-value">${dataToExport.reduce((s,c)=>s+(parseFloat(c.catalogValue)||0),0).toFixed(0)} €</div><div class="stat-label">Catalog</div></div>
+    </div>
+    <table>
+        <thead><tr><th>Nr</th><th>Denumire</th><th>Tip</th><th>An</th><th>Film</th><th>Raritate</th><th>Stare</th><th>Achiziție</th><th>Catalog</th></tr></thead>
+        <tbody>${dataToExport.map((c,i)=>{
+            const typesDisplay = [c.type, c.type2].filter(Boolean).join(' / ') || '—';
+            return `<tr>
+            <td>${i+1}</td>
+            <td><strong>${esc(c.name)}</strong><br><small style="color:#666">${esc(c.brand||'')}</small></td>
+            <td>${esc(typesDisplay)}</td>
+            <td>${c.year||'—'}</td>
+            <td>${esc(c.filmType||'—')}</td>
+            <td>${esc(c.rarity||'—')}</td>
+            <td>${esc(c.status||'—')}</td>
+            <td>${c.purchasePrice?c.purchasePrice+' €':'—'}</td>
+            <td>${c.catalogValue?c.catalogValue+' €':'—'}</td>
+        </tr>`}).join('')}</tbody>
+    </table>
+    </body></html>`;
+    
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+        newWindow.focus();
+    }
+    setTimeout(() => { window.focus(); }, 100);
+}
+
+function exportCameraPDF(id) {
+    const c = cameras.find(x => x.id === id);
+    if (!c) return;
+    
+    const statusText = { 'Excelentă': 'Excelentă', 'Bună': 'Bună', 'Acceptabilă': 'Acceptabilă', 'Necesită reparații': 'Necesită reparații' }[c.status] || '—';
+    const funcText = c.functional === 'da' ? 'Da ✓' : c.functional === 'nu' ? 'Nu ✗' : '—';
+    const funcClass = c.functional === 'da' ? 'func-yes' : c.functional === 'nu' ? 'func-no' : '';
+    
+    const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fișă - ${esc(c.name)}</title><style>
+        body{font-family:Georgia,serif;padding:2rem;max-width:800px;margin:0 auto;color:#333}
+        .header{text-align:center;border-bottom:3px solid #8B7355;padding-bottom:1.5rem;margin-bottom:2rem}
+        .logo{font-size:1.2rem;color:#8B7355;letter-spacing:0.1em;margin-bottom:0.5rem}
+        h1{font-size:2rem;color:#1a1a1a;margin:0.5rem 0}
+        .brand{font-size:1.1rem;color:#666;text-transform:uppercase;letter-spacing:0.05em}
+        .content{display:grid;grid-template-columns:${c.image ? '250px 1fr' : '1fr'};gap:2rem;margin-bottom:2rem}
+        .photo{text-align:center}
+        .photo img{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
+        .photo-placeholder{width:100%;height:200px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#ccc}
+        .details{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        .detail-group{background:#f9f9f9;padding:1rem;border-radius:6px}
+        .detail-label{font-size:0.7rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem}
+        .detail-value{font-size:1.1rem;color:#333}
+        .values{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;padding:1.5rem;background:linear-gradient(135deg,#f9f6f0,#f5f2eb);border-radius:8px}
+        .value-box{text-align:center}
+        .value-label{font-size:0.75rem;color:#888;text-transform:uppercase}
+        .value-amount{font-size:1.8rem;color:#8B7355;font-weight:bold}
+        .notes{margin-top:2rem;padding:1rem;background:#fff;border:1px solid #eee;border-radius:6px}
+        .notes-title{font-size:0.8rem;color:#888;text-transform:uppercase;margin-bottom:0.5rem}
+        .notes-text{color:#555;line-height:1.6}
+        .footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #eee;text-align:center;font-size:0.8rem;color:#999}
+        .func-yes{color:green}
+        .func-no{color:red}
+        .no-print{text-align:center;margin-bottom:1rem}
+        .no-print button{padding:0.8rem 2rem;font-size:1rem;cursor:pointer;background:#8B7355;color:white;border:none;border-radius:4px;margin:0 0.5rem}
+        .no-print button:hover{background:#6d5a43}
+        @media print{.no-print{display:none}body{padding:1rem}.content{grid-template-columns:200px 1fr}}
+    </style></head><body>
+    <div class="no-print">
+        <button onclick="window.print()">🖨️ Printează</button>
+        <button onclick="window.close()">✕ Închide</button>
+    </div>
+    <div class="header">
+        <div class="logo">CAMERA ARENA</div>
+        <div class="brand">${esc(c.brand || '')}</div>
+        <h1>${esc(c.name)}</h1>
+    </div>
+    <div class="content">
+        <div class="photo">
+            ${c.image 
+                ? `<img src="${c.image}" alt="${esc(c.name)}">` 
+                : '<div class="photo-placeholder">📷</div>'}
+        </div>
+        <div class="details">
+            <div class="detail-group">
+                <div class="detail-label">Tip aparat</div>
+                <div class="detail-value">${esc(c.type || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Tip secundar</div>
+                <div class="detail-value">${esc(c.type2 || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">An fabricație</div>
+                <div class="detail-value">${c.year || '—'}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Țara de origine</div>
+                <div class="detail-value">${(() => { const flags = { 'DE': '🇩🇪 Germania', 'JP': '🇯🇵 Japonia', 'US': '🇺🇸 SUA', 'GB': '🇬🇧 Marea Britanie', 'FR': '🇫🇷 Franța', 'IT': '🇮🇹 Italia', 'SU': '🇷🇺 URSS', 'RU': '🇷🇺 Rusia', 'CN': '🇨🇳 China', 'KR': '🇰🇷 Coreea de Sud', 'TW': '🇹🇼 Taiwan', 'AT': '🇦🇹 Austria', 'CH': '🇨🇭 Elveția', 'SE': '🇸🇪 Suedia', 'NL': '🇳🇱 Olanda', 'PL': '🇵🇱 Polonia', 'CZ': '🇨🇿 Cehia', 'HU': '🇭🇺 Ungaria', 'RO': '🇷🇴 România', 'DD': '🇩🇪 Germania de Est', 'XX': '🌍 Altă țară' }; return flags[c.country] || '—'; })()}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Tip film</div>
+                <div class="detail-value">${esc(c.filmType || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Raritate</div>
+                <div class="detail-value">${esc(c.rarity || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Număr serie</div>
+                <div class="detail-value">${esc(c.serial || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Stare</div>
+                <div class="detail-value">${statusText}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Funcțional</div>
+                <div class="detail-value ${funcClass}">${funcText}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Proveniență</div>
+                <div class="detail-value">${esc(c.source || '—')}</div>
+            </div>
+            <div class="detail-group">
+                <div class="detail-label">Data achiziției</div>
+                <div class="detail-value">${c.purchaseDate ? new Date(c.purchaseDate).toLocaleDateString('ro-RO') : '—'}</div>
+            </div>
+        </div>
+    </div>
+    <div class="values">
+        <div class="value-box">
+            <div class="value-label">Preț achiziție</div>
+            <div class="value-amount">${c.purchasePrice ? c.purchasePrice + ' €' : '—'}</div>
+        </div>
+        <div class="value-box">
+            <div class="value-label">Valoare catalog</div>
+            <div class="value-amount">${c.catalogValue ? c.catalogValue + ' €' : '—'}</div>
+        </div>
+    </div>
+    ${c.notes ? `<div class="notes"><div class="notes-title">Note / Observații</div><div class="notes-text">${esc(c.notes)}</div></div>` : ''}
+    <div class="footer">
+        Camera Arena • Colecția: ${esc(settings.ownerName || 'Merlinlx')} • Fișă generată la ${new Date().toLocaleDateString('ro-RO')}
+    </div>
+    </body></html>`;
+    
+    const newWindow = window.open('', '_blank');
+    if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+        newWindow.focus();
+    }
+    
+    // Restore focus to main window
+    setTimeout(() => { window.focus(); }, 100);
+}
+
+async function exportBackup() {
+    showLoading(t('saving'));
+    const blob = new Blob([JSON.stringify({ cameras, settings, date: new Date().toISOString(), version: '3.0' }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'CameraArena_Backup_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    hideLoading();
+    showToast(t('toastBackupSaved'));
+}
+
+async function importBackup(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    showLoading(t('loading'));
+    const reader = new FileReader();
+    reader.onload = async function(ev) {
+        try {
+            const backup = JSON.parse(ev.target.result);
+            if (backup.cameras && Array.isArray(backup.cameras)) {
+                await dbClear();
+                cameras = [];
+                setProgress(0);
+                for (let i = 0; i < backup.cameras.length; i++) {
+                    await dbPut(backup.cameras[i]);
+                    cameras.push(backup.cameras[i]);
+                    setProgress(((i + 1) / backup.cameras.length) * 100);
+                }
+                if (backup.settings) {
+                    settings = { ...settings, ...backup.settings };
+                    await dbPutSetting('appSettings', settings);
+                    applySettings();
+                    populateDropdowns();
+                }
+                filterCameras();
+                updateStats();
+                updateStorageInfo();
+                showToast(backup.cameras.length + ' ' + t('toastBackupRestored'));
+            }
+        } catch(err) { alert('Eroare'); console.error(err); }
+        hideLoading();
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+}
+
+async function migrateFromLocalStorage() {
+    const stored = localStorage.getItem('CameraVault_Data');
+    if (!stored) { alert('Nu există date în localStorage.'); return; }
+    try {
+        showLoading(t('loading'));
+        const data = JSON.parse(stored);
+        const oldCameras = data.cameras || [];
+        if (oldCameras.length === 0) { alert('Nu există aparate de migrat.'); hideLoading(); return; }
+        setProgress(0);
+        let migrated = 0;
+        for (let i = 0; i < oldCameras.length; i++) {
+            if (!cameras.find(c => c.id === oldCameras[i].id)) {
+                await dbPut(oldCameras[i]);
+                cameras.push(oldCameras[i]);
+                migrated++;
+            }
+            setProgress(((i + 1) / oldCameras.length) * 100);
+        }
+        filterCameras();
+        updateStats();
+        updateStorageInfo();
+        hideLoading();
+        showToast(migrated + ' ' + t('toastMigrated'));
+        if (confirm('Ștergi datele vechi din localStorage?')) localStorage.removeItem('CameraVault_Data');
+    } catch (err) { console.error(err); alert('Eroare la migrare'); hideLoading(); }
+}
+
+async function clearAllData() {
+    if (!confirm(t('confirmDeleteAll'))) return;
+    if (!confirm('Ești sigur? Acțiunea este ireversibilă!')) return;
+    showLoading(t('loading'));
+    await dbClear();
+    cameras = [];
+    renderCameras();
+    updateStats();
+    updateStorageInfo();
+    closeSettingsModal();
+    hideLoading();
+    showToast(t('toastAllDeleted'));
+}
+
+// ==================== UTILS ====================
+function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function showToast(msg) { document.getElementById('toastMessage').textContent = msg; document.getElementById('toast').classList.add('show'); setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    if (e.key === 'n' && e.ctrlKey) { e.preventDefault(); openAddModal(); }
+});
+</script>
+</body>
+</html>
