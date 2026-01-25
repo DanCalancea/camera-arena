@@ -414,12 +414,15 @@
                                 <option value="35mm">Film 35mm</option>
                                 <option value="110">Film 110</option>
                                 <option value="116">Film 116</option>
+                                <option value="118">Film 118</option>
                                 <option value="120">Film 120</option>
                                 <option value="122">Film 122</option>
                                 <option value="123">Film 123</option>
                                 <option value="126">Film 126</option>
                                 <option value="Cartuș 126">Cartuș 126</option>
                                 <option value="127">Film 127</option>
+                                <option value="129">Film 129 (E29)</option>
+                                <option value="130">Film 130</option>
                                 <option value="620">Film 620</option>
                                 <option value="828">Film 828</option>
                                 <option value="Rapid">Casetă Rapid</option>
@@ -427,6 +430,8 @@
                                 <option value="APS">Film APS</option>
                                 <option value="Instant">Instant</option>
                                 <option value="Digital">Digital</option>
+                                <option value="Disc">Disc</option>
+                                <option value="Alte Rollfilm">Alte Rollfilm</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -758,7 +763,7 @@ function applySettings() {
 
 function populateDropdowns() {
     const types = ['SLR Film', 'SLR Digital', 'Mirrorless', 'Rangefinder', 'Compact Film', 'Compact Digital', 'Medium Format', 'Large Format', 'Instant', 'TLR', 'Box Camera', 'Folding Camera', 'Micro-Spy', 'View Camera', 'Motor cu arc', 'Altele'];
-    const filmTypes = ['Plăci', '16mm', '35mm', '110', '116', '120', '122', '123', '126', 'Cartuș 126', '127', '620', '828', 'Rapid', 'DLC', 'APS', 'Instant', 'Digital'];
+    const filmTypes = ['Plăci', '16mm', '35mm', '110', '116', '118', '120', '122', '123', '126', 'Cartuș 126', '127', '129', '130', '620', '828', 'Rapid', 'DLC', 'APS', 'Instant', 'Digital', 'Disc', 'Alte Rollfilm'];
     const rarities = ['Comun', 'Neobișnuit', 'Rar', 'Foarte rar', 'Extrem de rar'];
     const countries = [
         {code: 'DE', flag: '🇩🇪', name: 'Germania'},
