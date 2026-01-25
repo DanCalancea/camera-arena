@@ -19,7 +19,7 @@ Camera Arena este o aplicație completă pentru colecționarii de aparate foto. 
 ### 📋 Gestionare Colecție
 - **Câmpuri complete**: Denumire, Marcă, Model, Tip (principal + secundar), An fabricație, Țară origine, Tip film, Raritate, Număr serie, Stare, Funcțional, Proveniență, Prețuri, Note
 - **16 tipuri de aparate**: SLR Film, SLR Digital, Mirrorless, Rangefinder, TLR, Box Camera, Folding Camera, și altele
-- **18 tipuri de film**: De la Plăci de sticlă la Digital, inclusiv formate rare (116, 122, 127, 828)
+- **23 tipuri de film**: De la Plăci de sticlă la Digital, inclusiv formate rare (116, 122, 127, 828)
 - **21 de țări** cu steaguri emoji (suport Twemoji pentru Chrome)
 - **5 nivele de raritate** cu culori distinctive
 
