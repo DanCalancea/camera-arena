@@ -80,10 +80,11 @@
         .camera-content { padding: 1.2rem; }
         .view-list .camera-content { padding: 0; overflow: hidden; }
         .view-compact .camera-content { padding: 0.8rem; }
-        .camera-brand { font-size: 0.7rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem; }
+        .camera-brand { font-size: 1rem; color: var(--accent-primary); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; font-weight: 700; font-family: 'Playfair Display', serif; }
         .camera-name { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 600; margin-bottom: 0.3rem; line-height: 1.3; }
         .view-list .camera-name { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0; }
         .view-list .camera-brand { display: none; }
+        .view-compact .camera-brand { font-size: 0.85rem; }
         .view-compact .camera-name { font-size: 1rem; }
         .camera-meta { font-size: 0.8rem; color: var(--text-muted); }
         .view-list .camera-meta { display: none; }
@@ -93,6 +94,16 @@
         .list-col-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .list-col-value { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .list-col-value.price { font-family: 'Playfair Display', serif; color: var(--accent-primary-light); }
+        
+        /* Year color based on mode, Functional colors */
+        .year-green { color: #f5f5f5 !important; font-weight: 600; }
+        [data-mode="light"] .year-green { color: #1a1a1a !important; }
+        .func-yes { color: #4CAF50; font-weight: 600; }
+        .func-no { color: #e74c3c; font-weight: 600; }
+        
+        /* Country inline (after brand name) */
+        .country-inline { display: inline-flex; align-items: center; gap: 0.3rem; margin-left: 0.5rem; font-size: 0.75rem; color: var(--text-secondary); background: var(--bg-dark); padding: 0.15rem 0.5rem; border-radius: 4px; vertical-align: middle; }
+        .country-inline img.twemoji { width: 1em; height: 1em; vertical-align: -0.1em; }
         
         /* DETAILS (tile/compact) */
         .camera-details { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.85rem; margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid var(--border-subtle); }
@@ -368,12 +379,6 @@
                         <div class="form-group">
                             <label class="form-label">Raritate</label>
                             <select class="form-input" id="cameraRarity">
-                                <option value="">Selectează...</option>
-                                <option value="Comun">Comun</option>
-                                <option value="Neobișnuit">Neobișnuit</option>
-                                <option value="Rar">Rar</option>
-                                <option value="Foarte rar">Foarte rar</option>
-                                <option value="Extrem de rar">Extrem de rar</option>
                             </select>
                         </div>
                     </div>
@@ -381,28 +386,6 @@
                         <div class="form-group">
                             <label class="form-label">Țara de origine</label>
                             <select class="form-input" id="cameraCountry">
-                                <option value="">Selectează...</option>
-                                <option value="DE">🇩🇪 Germania</option>
-                                <option value="JP">🇯🇵 Japonia</option>
-                                <option value="US">🇺🇸 SUA</option>
-                                <option value="GB">🇬🇧 Marea Britanie</option>
-                                <option value="FR">🇫🇷 Franța</option>
-                                <option value="IT">🇮🇹 Italia</option>
-                                <option value="SU">🇷🇺 URSS</option>
-                                <option value="RU">🇷🇺 Rusia</option>
-                                <option value="CN">🇨🇳 China</option>
-                                <option value="KR">🇰🇷 Coreea de Sud</option>
-                                <option value="TW">🇹🇼 Taiwan</option>
-                                <option value="AT">🇦🇹 Austria</option>
-                                <option value="CH">🇨🇭 Elveția</option>
-                                <option value="SE">🇸🇪 Suedia</option>
-                                <option value="NL">🇳🇱 Olanda</option>
-                                <option value="PL">🇵🇱 Polonia</option>
-                                <option value="CZ">🇨🇿 Cehia</option>
-                                <option value="HU">🇭🇺 Ungaria</option>
-                                <option value="RO">🇷🇴 România</option>
-                                <option value="DD">🇩🇪 Germania de Est (DDR)</option>
-                                <option value="XX">🌍 Altă țară</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -475,7 +458,7 @@
                         <label class="form-label">Fotografie</label>
                         <input type="file" class="form-input form-input-file" id="cameraImage" accept="image/*" onchange="previewImage(event)">
                         <p class="image-info">Imaginile se comprimă automat la ~80KB</p>
-                        <div id="imagePreviewContainer" style="display:none;">
+                        <div id="imagePreviewContainer" class="image-preview-container" style="display:none;">
                             <img id="imagePreview">
                             <p class="image-info" id="compressedSize"></p>
                             <button type="button" class="btn btn-delete-image" onclick="deleteImage()">🗑️ Șterge imaginea</button>
@@ -707,8 +690,48 @@ async function compressImage(file, maxWidth = 1000, quality = 0.7) {
 
 // ==================== TRANSLATIONS ====================
 const i18n = {
-    ro: { tagline: 'Colecția Personală de Aparate Foto', cameras: 'Aparate', brands: 'Mărci', purchaseValue: 'Valoare Achiziție', catalogValue: 'Valoare Catalog', allTypes: 'Toate tipurile', allFilmTypes: 'Toate filmele', allRarities: 'Toate raritățile', allCountries: 'Toate țările', allConditions: 'Toate stările', condExcellent: 'Excelentă', condGood: 'Bună', condFair: 'Acceptabilă', condPoor: 'Necesită reparații', sortNewest: 'Cele mai recente', sortOldest: 'Cele mai vechi', sortNameAZ: 'Denumire A-Z', sortNameZA: 'Denumire Z-A', sortBrandAZ: 'Marcă A-Z', sortBrandZA: 'Marcă Z-A', sortYearDesc: 'An ↓', sortYearAsc: 'An ↑', sortPriceDesc: 'Preț ↓', sortPriceAsc: 'Preț ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', unknown: 'Necunoscut', selectOption: 'Selectează...', toastAdded: 'Aparat adăugat', toastUpdated: 'Aparat actualizat', toastDeleted: 'Aparat șters', toastImported: 'aparate importate', toastBackupSaved: 'Backup salvat', toastBackupRestored: 'aparate restaurate', toastMigrated: 'Date migrate', toastAllDeleted: 'Date șterse', confirmDelete: 'Ștergi acest aparat?', confirmDeleteAll: 'Ștergi TOATE datele?', alertRequired: 'Completează câmpurile obligatorii!', alertNoData: 'Nu există date.', loading: 'Se încarcă...', saving: 'Se salvează...', colYear: 'An', colType: 'Tip', colSerial: 'Serie', colSource: 'Proveniență', colPurchase: 'Achiziție', colCatalog: 'Catalog', colStatus: 'Stare', colRarity: 'Raritate', colFilmType: 'Film', colCountry: 'Țara' },
-    en: { tagline: 'Personal Camera Collection', cameras: 'Cameras', brands: 'Brands', purchaseValue: 'Purchase Value', catalogValue: 'Catalog Value', allTypes: 'All types', allFilmTypes: 'All film types', allRarities: 'All rarities', allCountries: 'All countries', allConditions: 'All conditions', condExcellent: 'Excellent', condGood: 'Good', condFair: 'Fair', condPoor: 'Needs repair', sortNewest: 'Most recent', sortOldest: 'Oldest', sortNameAZ: 'Name A-Z', sortNameZA: 'Name Z-A', sortBrandAZ: 'Brand A-Z', sortBrandZA: 'Brand Z-A', sortYearDesc: 'Year ↓', sortYearAsc: 'Year ↑', sortPriceDesc: 'Price ↓', sortPriceAsc: 'Price ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', unknown: 'Unknown', selectOption: 'Select...', toastAdded: 'Camera added', toastUpdated: 'Camera updated', toastDeleted: 'Camera deleted', toastImported: 'cameras imported', toastBackupSaved: 'Backup saved', toastBackupRestored: 'cameras restored', toastMigrated: 'Data migrated', toastAllDeleted: 'Data deleted', confirmDelete: 'Delete this camera?', confirmDeleteAll: 'Delete ALL data?', alertRequired: 'Fill required fields!', alertNoData: 'No data.', loading: 'Loading...', saving: 'Saving...', colYear: 'Year', colType: 'Type', colSerial: 'Serial', colSource: 'Source', colPurchase: 'Purchase', colCatalog: 'Catalog', colStatus: 'Status', colRarity: 'Rarity', colFilmType: 'Film', colCountry: 'Country' }
+    ro: { 
+        tagline: 'Colecția Personală de Aparate Foto', cameras: 'Aparate', brands: 'Mărci', purchaseValue: 'Valoare Achiziție', catalogValue: 'Valoare Catalog', 
+        allTypes: 'Toate tipurile', allFilmTypes: 'Toate filmele', allRarities: 'Toate raritățile', allCountries: 'Toate țările', allConditions: 'Toate stările', 
+        condExcellent: 'Excelentă', condGood: 'Bună', condFair: 'Acceptabilă', condPoor: 'Necesită reparații', 
+        sortNewest: 'Cele mai recente', sortOldest: 'Cele mai vechi', sortNameAZ: 'Denumire A-Z', sortNameZA: 'Denumire Z-A', sortBrandAZ: 'Marcă A-Z', sortBrandZA: 'Marcă Z-A', sortYearDesc: 'An ↓', sortYearAsc: 'An ↑', sortPriceDesc: 'Preț ↓', sortPriceAsc: 'Preț ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', 
+        unknown: 'Necunoscut', selectOption: 'Selectează...', 
+        toastAdded: 'Aparat adăugat', toastUpdated: 'Aparat actualizat', toastDeleted: 'Aparat șters', toastImported: 'aparate importate', toastBackupSaved: 'Backup salvat', toastBackupRestored: 'aparate restaurate', toastMigrated: 'Date migrate', toastAllDeleted: 'Date șterse', 
+        confirmDelete: 'Ștergi acest aparat?', confirmDeleteAll: 'Ștergi TOATE datele?', alertRequired: 'Completează câmpurile obligatorii!', alertNoData: 'Nu există date.', loading: 'Se încarcă...', saving: 'Se salvează...', 
+        colYear: 'An', colType: 'Tip', colSerial: 'Serie', colSource: 'Proveniență', colPurchase: 'Achiziție', colCatalog: 'Catalog', colStatus: 'Stare', colRarity: 'Raritate', colFilmType: 'Film', colCountry: 'Țara',
+        // Rarities
+        rarCommon: 'Comun', rarUncommon: 'Neobișnuit', rarRare: 'Rar', rarVeryRare: 'Foarte rar', rarExtremelyRare: 'Extrem de rar',
+        // Countries
+        countryDE: 'Germania', countryJP: 'Japonia', countryUS: 'SUA', countryGB: 'Marea Britanie', countryFR: 'Franța', countryIT: 'Italia', 
+        countrySU: 'URSS', countryRU: 'Rusia', countryCN: 'China', countryKR: 'Coreea de Sud', countryTW: 'Taiwan', 
+        countryAT: 'Austria', countryCH: 'Elveția', countrySE: 'Suedia', countryNL: 'Olanda', countryPL: 'Polonia', 
+        countryCZ: 'Cehia', countryHU: 'Ungaria', countryRO: 'România', countryDD: 'Germania de Est', countryBE: 'Belgia', countryES: 'Spania', countryXX: 'Altă țară',
+        // Functional
+        funcYes: 'Da', funcNo: 'Nu',
+        // Extra labels
+        colYearLaunch: 'An lansare model'
+    },
+    en: { 
+        tagline: 'Personal Camera Collection', cameras: 'Cameras', brands: 'Brands', purchaseValue: 'Purchase Value', catalogValue: 'Catalog Value', 
+        allTypes: 'All types', allFilmTypes: 'All film types', allRarities: 'All rarities', allCountries: 'All countries', allConditions: 'All conditions', 
+        condExcellent: 'Excellent', condGood: 'Good', condFair: 'Fair', condPoor: 'Needs repair', 
+        sortNewest: 'Most recent', sortOldest: 'Oldest', sortNameAZ: 'Name A-Z', sortNameZA: 'Name Z-A', sortBrandAZ: 'Brand A-Z', sortBrandZA: 'Brand Z-A', sortYearDesc: 'Year ↓', sortYearAsc: 'Year ↑', sortPriceDesc: 'Price ↓', sortPriceAsc: 'Price ↑', sortCatalogDesc: 'Catalog ↓', sortCatalogAsc: 'Catalog ↑', 
+        unknown: 'Unknown', selectOption: 'Select...', 
+        toastAdded: 'Camera added', toastUpdated: 'Camera updated', toastDeleted: 'Camera deleted', toastImported: 'cameras imported', toastBackupSaved: 'Backup saved', toastBackupRestored: 'cameras restored', toastMigrated: 'Data migrated', toastAllDeleted: 'Data deleted', 
+        confirmDelete: 'Delete this camera?', confirmDeleteAll: 'Delete ALL data?', alertRequired: 'Fill required fields!', alertNoData: 'No data.', loading: 'Loading...', saving: 'Saving...', 
+        colYear: 'Year', colType: 'Type', colSerial: 'Serial', colSource: 'Source', colPurchase: 'Purchase', colCatalog: 'Catalog', colStatus: 'Status', colRarity: 'Rarity', colFilmType: 'Film', colCountry: 'Country',
+        // Rarities
+        rarCommon: 'Common', rarUncommon: 'Uncommon', rarRare: 'Rare', rarVeryRare: 'Very Rare', rarExtremelyRare: 'Extremely Rare',
+        // Countries
+        countryDE: 'Germany', countryJP: 'Japan', countryUS: 'USA', countryGB: 'United Kingdom', countryFR: 'France', countryIT: 'Italy', 
+        countrySU: 'USSR', countryRU: 'Russia', countryCN: 'China', countryKR: 'South Korea', countryTW: 'Taiwan', 
+        countryAT: 'Austria', countryCH: 'Switzerland', countrySE: 'Sweden', countryNL: 'Netherlands', countryPL: 'Poland', 
+        countryCZ: 'Czech Republic', countryHU: 'Hungary', countryRO: 'Romania', countryDD: 'East Germany', countryBE: 'Belgium', countryES: 'Spain', countryXX: 'Other',
+        // Functional
+        funcYes: 'Yes', funcNo: 'No',
+        // Extra labels
+        colYearLaunch: 'Model launch year'
+    }
 };
 
 // ==================== DATA ====================
@@ -764,38 +787,48 @@ function applySettings() {
 function populateDropdowns() {
     const types = ['SLR Film', 'SLR Digital', 'Mirrorless', 'Rangefinder', 'Compact Film', 'Compact Digital', 'Medium Format', 'Large Format', 'Instant', 'TLR', 'Box Camera', 'Folding Camera', 'Micro-Spy', 'View Camera', 'Motor cu arc', 'Altele'];
     const filmTypes = ['Plăci', '16mm', '35mm', '110', '116', '118', '120', '122', '123', '126', 'Cartuș 126', '127', '129', '130', '620', '828', 'Rapid', 'DLC', 'APS', 'Instant', 'Digital', 'Disc', 'Alte Rollfilm'];
-    const rarities = ['Comun', 'Neobișnuit', 'Rar', 'Foarte rar', 'Extrem de rar'];
+    const rarities = [
+        { value: 'Comun', label: t('rarCommon') },
+        { value: 'Neobișnuit', label: t('rarUncommon') },
+        { value: 'Rar', label: t('rarRare') },
+        { value: 'Foarte rar', label: t('rarVeryRare') },
+        { value: 'Extrem de rar', label: t('rarExtremelyRare') }
+    ];
     const countries = [
-        {code: 'DE', flag: '🇩🇪', name: 'Germania'},
-        {code: 'JP', flag: '🇯🇵', name: 'Japonia'},
-        {code: 'US', flag: '🇺🇸', name: 'SUA'},
-        {code: 'GB', flag: '🇬🇧', name: 'Marea Britanie'},
-        {code: 'FR', flag: '🇫🇷', name: 'Franța'},
-        {code: 'IT', flag: '🇮🇹', name: 'Italia'},
-        {code: 'SU', flag: '🇷🇺', name: 'URSS'},
-        {code: 'RU', flag: '🇷🇺', name: 'Rusia'},
-        {code: 'CN', flag: '🇨🇳', name: 'China'},
-        {code: 'KR', flag: '🇰🇷', name: 'Coreea de Sud'},
-        {code: 'TW', flag: '🇹🇼', name: 'Taiwan'},
-        {code: 'AT', flag: '🇦🇹', name: 'Austria'},
-        {code: 'CH', flag: '🇨🇭', name: 'Elveția'},
-        {code: 'SE', flag: '🇸🇪', name: 'Suedia'},
-        {code: 'NL', flag: '🇳🇱', name: 'Olanda'},
-        {code: 'PL', flag: '🇵🇱', name: 'Polonia'},
-        {code: 'CZ', flag: '🇨🇿', name: 'Cehia'},
-        {code: 'HU', flag: '🇭🇺', name: 'Ungaria'},
-        {code: 'RO', flag: '🇷🇴', name: 'România'},
-        {code: 'DD', flag: '🇩🇪', name: 'Germania de Est'},
-        {code: 'XX', flag: '🌍', name: 'Altă țară'}
+        {code: 'DE', flag: '🇩🇪', nameKey: 'countryDE'},
+        {code: 'JP', flag: '🇯🇵', nameKey: 'countryJP'},
+        {code: 'US', flag: '🇺🇸', nameKey: 'countryUS'},
+        {code: 'GB', flag: '🇬🇧', nameKey: 'countryGB'},
+        {code: 'FR', flag: '🇫🇷', nameKey: 'countryFR'},
+        {code: 'IT', flag: '🇮🇹', nameKey: 'countryIT'},
+        {code: 'SU', flag: '🇷🇺', nameKey: 'countrySU'},
+        {code: 'RU', flag: '🇷🇺', nameKey: 'countryRU'},
+        {code: 'CN', flag: '🇨🇳', nameKey: 'countryCN'},
+        {code: 'TW', flag: '🇹🇼', nameKey: 'countryTW'},
+        {code: 'AT', flag: '🇦🇹', nameKey: 'countryAT'},
+        {code: 'CH', flag: '🇨🇭', nameKey: 'countryCH'},
+        {code: 'SE', flag: '🇸🇪', nameKey: 'countrySE'},
+        {code: 'NL', flag: '🇳🇱', nameKey: 'countryNL'},
+        {code: 'BE', flag: '🇧🇪', nameKey: 'countryBE'},
+        {code: 'ES', flag: '🇪🇸', nameKey: 'countryES'},
+        {code: 'PL', flag: '🇵🇱', nameKey: 'countryPL'},
+        {code: 'CZ', flag: '🇨🇿', nameKey: 'countryCZ'},
+        {code: 'HU', flag: '🇭🇺', nameKey: 'countryHU'},
+        {code: 'RO', flag: '🇷🇴', nameKey: 'countryRO'},
+        {code: 'DD', flag: '🇩🇪', nameKey: 'countryDD'},
+        {code: 'KR', flag: '🇰🇷', nameKey: 'countryKR'},
+        {code: 'XX', flag: '🌍', nameKey: 'countryXX'}
     ];
     document.getElementById('filterType').innerHTML = `<option value="">${t('allTypes')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
     document.getElementById('filterFilmType').innerHTML = `<option value="">${t('allFilmTypes')}</option>` + filmTypes.map(x => `<option value="${x}">${x}</option>`).join('');
-    document.getElementById('filterCountry').innerHTML = `<option value="">${t('allCountries')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${c.name}</option>`).join('');
-    document.getElementById('filterRarity').innerHTML = `<option value="">${t('allRarities')}</option>` + rarities.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('filterCountry').innerHTML = `<option value="">${t('allCountries')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${t(c.nameKey)}</option>`).join('');
+    document.getElementById('filterRarity').innerHTML = `<option value="">${t('allRarities')}</option>` + rarities.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
     document.getElementById('sortBy').innerHTML = `<option value="year_asc">${t('sortYearAsc')}</option><option value="year_desc">${t('sortYearDesc')}</option><option value="dateAdded_desc">${t('sortNewest')}</option><option value="dateAdded_asc">${t('sortOldest')}</option><option value="name_asc">${t('sortNameAZ')}</option><option value="name_desc">${t('sortNameZA')}</option><option value="brand_asc">${t('sortBrandAZ')}</option><option value="brand_desc">${t('sortBrandZA')}</option><option value="purchasePrice_desc">${t('sortPriceDesc')}</option><option value="purchasePrice_asc">${t('sortPriceAsc')}</option><option value="catalogValue_desc">${t('sortCatalogDesc')}</option><option value="catalogValue_asc">${t('sortCatalogAsc')}</option>`;
     document.getElementById('cameraType').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
     document.getElementById('cameraType2').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
     document.getElementById('cameraStatus').innerHTML = `<option value="">${t('selectOption')}</option><option value="Excelentă">${t('condExcellent')}</option><option value="Bună">${t('condGood')}</option><option value="Acceptabilă">${t('condFair')}</option><option value="Necesită reparații">${t('condPoor')}</option>`;
+    document.getElementById('cameraRarity').innerHTML = `<option value="">${t('selectOption')}</option>` + rarities.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
+    document.getElementById('cameraCountry').innerHTML = `<option value="">${t('selectOption')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${t(c.nameKey)}</option>`).join('');
     if (typeof twemoji !== 'undefined') {
         twemoji.parse(document.getElementById('filterCountry'));
         twemoji.parse(document.getElementById('cameraCountry'));
@@ -927,22 +960,27 @@ function renderCard(c) {
     const statusClass = { 'Excelentă': 'excellent', 'Bună': 'good', 'Acceptabilă': 'fair', 'Necesită reparații': 'poor' }[c.status] || '';
     const statusText = { 'Excelentă': t('condExcellent'), 'Bună': t('condGood'), 'Acceptabilă': t('condFair'), 'Necesită reparații': t('condPoor') }[c.status] || '';
     const rarityClass = { 'Comun': 'common', 'Neobișnuit': 'uncommon', 'Rar': 'rare', 'Foarte rar': 'very-rare', 'Extrem de rar': 'extremely-rare' }[c.rarity] || '';
-    const countryFlags = { 'DE': '🇩🇪', 'JP': '🇯🇵', 'US': '🇺🇸', 'GB': '🇬🇧', 'FR': '🇫🇷', 'IT': '🇮🇹', 'SU': '🇷🇺', 'RU': '🇷🇺', 'CN': '🇨🇳', 'KR': '🇰🇷', 'TW': '🇹🇼', 'AT': '🇦🇹', 'CH': '🇨🇭', 'SE': '🇸🇪', 'NL': '🇳🇱', 'PL': '🇵🇱', 'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'DD': '🇩🇪', 'XX': '🌍' };
+    const rarityText = { 'Comun': t('rarCommon'), 'Neobișnuit': t('rarUncommon'), 'Rar': t('rarRare'), 'Foarte rar': t('rarVeryRare'), 'Extrem de rar': t('rarExtremelyRare') }[c.rarity] || '';
+    const countryFlags = { 'DE': '🇩🇪', 'JP': '🇯🇵', 'US': '🇺🇸', 'GB': '🇬🇧', 'FR': '🇫🇷', 'IT': '🇮🇹', 'SU': '🇷🇺', 'RU': '🇷🇺', 'CN': '🇨🇳', 'KR': '🇰🇷', 'TW': '🇹🇼', 'AT': '🇦🇹', 'CH': '🇨🇭', 'SE': '🇸🇪', 'NL': '🇳🇱', 'PL': '🇵🇱', 'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'DD': '🇩🇪', 'BE': '🇧🇪', 'ES': '🇪🇸', 'XX': '🌍' };
+    const countryKeys = { 'DE': 'countryDE', 'JP': 'countryJP', 'US': 'countryUS', 'GB': 'countryGB', 'FR': 'countryFR', 'IT': 'countryIT', 'SU': 'countrySU', 'RU': 'countryRU', 'CN': 'countryCN', 'KR': 'countryKR', 'TW': 'countryTW', 'AT': 'countryAT', 'CH': 'countryCH', 'SE': 'countrySE', 'NL': 'countryNL', 'PL': 'countryPL', 'CZ': 'countryCZ', 'HU': 'countryHU', 'RO': 'countryRO', 'DD': 'countryDD', 'BE': 'countryBE', 'ES': 'countryES', 'XX': 'countryXX' };
     const countryFlag = countryFlags[c.country] || '';
+    const countryName = c.country ? t(countryKeys[c.country]) : '';
     const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent((c.brand || '') + ' ' + (c.model || ''))}`;
     
     // Format types display
     const typesDisplay = [c.type, c.type2].filter(Boolean).join(' / ') || '—';
     
+    // Country display after name (steag + țară)
+    const countryInline = c.country && countryFlag ? `<span class="country-inline">${countryFlag} ${countryName}</span>` : '';
+    
     // Badges HTML
     let badgesHtml = '<div class="badges">';
-    if (c.country && countryFlag) badgesHtml += `<span class="badge badge-country" title="${c.country}">${countryFlag}</span>`;
     if (c.status) badgesHtml += `<span class="badge badge-status badge-${statusClass}">${statusText}</span>`;
     if (c.functional) badgesHtml += `<span class="badge badge-functional badge-func-${c.functional === 'da' ? 'yes' : 'no'}">${c.functional === 'da' ? '✓' : '✗'}</span>`;
-    if (c.rarity && rarityClass) badgesHtml += `<span class="badge badge-rarity badge-rarity-${rarityClass}">${c.rarity}</span>`;
+    if (c.rarity && rarityClass) badgesHtml += `<span class="badge badge-rarity badge-rarity-${rarityClass}">${rarityText}</span>`;
     badgesHtml += '</div>';
     
-    // Image HTML
+    // Image HTML (fără overlay)
     const imageHtml = c.image 
         ? `<div class="camera-image"><img src="${c.image}" loading="lazy" alt="${esc(c.name)}"></div>`
         : `<div class="camera-image no-image"></div>`;
@@ -958,34 +996,37 @@ function renderCard(c) {
     // List view - columns: Image | Name | Year | Type(s) | Film | Rarity | Catalog | Actions
     const listCols = `
         ${imageHtml}
-        <div class="camera-content"><div class="camera-name" title="${esc(c.name)}">${esc(c.name)}</div>${badgesHtml}</div>
-        <div class="list-col"><span class="list-col-label">${t('colYear')}</span><span class="list-col-value">${c.year || '—'}</span></div>
+        <div class="camera-content"><div class="camera-name" title="${esc(c.name)}">${esc(c.name)} ${countryInline}</div>${badgesHtml}</div>
+        <div class="list-col"><span class="list-col-label">${t('colYear')}</span><span class="list-col-value year-green">${c.year || '—'}</span></div>
         <div class="list-col"><span class="list-col-label">${t('colType')}</span><span class="list-col-value" title="${esc(typesDisplay)}">${esc(typesDisplay)}</span></div>
         <div class="list-col"><span class="list-col-label">${t('colFilmType')}</span><span class="list-col-value">${esc(c.filmType || '—')}</span></div>
-        <div class="list-col"><span class="list-col-label">${t('colRarity')}</span><span class="list-col-value" title="${esc(c.rarity || '')}">${esc(c.rarity || '—')}</span></div>
+        <div class="list-col"><span class="list-col-label">${t('colRarity')}</span><span class="list-col-value" title="${esc(rarityText || '')}">${esc(rarityText || '—')}</span></div>
         <div class="list-col"><span class="list-col-label">${t('colCatalog')}</span><span class="list-col-value price">${c.catalogValue ? c.catalogValue + '€' : '—'}</span></div>
         ${actionsHtml}
     `;
     
-    // Tile/Compact view
-    const countryNames = { 'DE': 'Germania', 'JP': 'Japonia', 'US': 'SUA', 'GB': 'Marea Britanie', 'FR': 'Franța', 'IT': 'Italia', 'SU': 'URSS', 'RU': 'Rusia', 'CN': 'China', 'KR': 'Coreea de Sud', 'TW': 'Taiwan', 'AT': 'Austria', 'CH': 'Elveția', 'SE': 'Suedia', 'NL': 'Olanda', 'PL': 'Polonia', 'CZ': 'Cehia', 'HU': 'Ungaria', 'RO': 'România', 'DD': 'Germania de Est', 'XX': 'Altă țară' };
-    const countryDisplay = c.country ? `<span class="country-display">${countryFlag} ${countryNames[c.country] || c.country}</span>` : '—';
+    // Tile/Compact view - funcțional cu culori
+    const functionalHtml = c.functional === 'da' 
+        ? `<span class="func-yes">${t('funcYes')} ✓</span>` 
+        : c.functional === 'nu' 
+            ? `<span class="func-no">${t('funcNo')} ✗</span>` 
+            : '—';
     const tileCols = `
         ${badgesHtml}
         ${actionsHtml}
         ${imageHtml}
         <div class="camera-content">
-            <div class="camera-brand">${esc(c.brand || t('unknown'))}</div>
+            <div class="camera-brand">${esc(c.brand || t('unknown'))} ${countryInline}</div>
             <div class="camera-name">${esc(c.name)}</div>
             <div class="camera-meta">${esc(typesDisplay)}${(c.type || c.type2) && c.year ? ' • ' : ''}${c.year || ''}</div>
             <div class="camera-details">
                 <div class="detail-item"><span class="detail-label">${t('colFilmType')}</span><span class="detail-value">${esc(c.filmType || '—')}</span></div>
-                <div class="detail-item"><span class="detail-label">${t('colCountry')}</span><span class="detail-value">${countryDisplay}</span></div>
+                <div class="detail-item"><span class="detail-label">${t('colYearLaunch')}</span><span class="detail-value year-green">${c.year || '—'}</span></div>
                 <div class="detail-item"><span class="detail-label">${t('colStatus')}</span><span class="detail-value">${statusText || '—'}</span></div>
-                <div class="detail-item"><span class="detail-label">Funcțional</span><span class="detail-value">${c.functional === 'da' ? 'Da ✓' : c.functional === 'nu' ? 'Nu ✗' : '—'}</span></div>
+                <div class="detail-item"><span class="detail-label">${settings.language === 'en' ? 'Functional' : 'Funcțional'}</span><span class="detail-value">${functionalHtml}</span></div>
             </div>
             <div class="camera-values">
-                <div class="value-item"><div class="value-label">${t('colRarity')}</div><div class="value-amount rarity-color-${rarityClass}">${esc(c.rarity || '—')}</div></div>
+                <div class="value-item"><div class="value-label">${t('colRarity')}</div><div class="value-amount rarity-color-${rarityClass}">${esc(rarityText || '—')}</div></div>
                 <div class="value-item"><div class="value-label">${t('colCatalog')}</div><div class="value-amount">${c.catalogValue ? c.catalogValue + ' €' : '—'}</div></div>
             </div>
         </div>
@@ -1239,10 +1280,15 @@ async function processImport() {
 function exportToExcel() {
     const dataToExport = filteredCameras.length > 0 ? filteredCameras : cameras;
     if (dataToExport.length === 0) { alert(t('alertNoData')); return; }
-    const countryNames = { 'DE': 'Germania', 'JP': 'Japonia', 'US': 'SUA', 'GB': 'Marea Britanie', 'FR': 'Franța', 'IT': 'Italia', 'SU': 'URSS', 'RU': 'Rusia', 'CN': 'China', 'KR': 'Coreea de Sud', 'TW': 'Taiwan', 'AT': 'Austria', 'CH': 'Elveția', 'SE': 'Suedia', 'NL': 'Olanda', 'PL': 'Polonia', 'CZ': 'Cehia', 'HU': 'Ungaria', 'RO': 'România', 'DD': 'Germania de Est', 'XX': 'Altă țară' };
+    const countryKeys = { 'DE': 'countryDE', 'JP': 'countryJP', 'US': 'countryUS', 'GB': 'countryGB', 'FR': 'countryFR', 'IT': 'countryIT', 'SU': 'countrySU', 'RU': 'countryRU', 'CN': 'countryCN', 'KR': 'countryKR', 'TW': 'countryTW', 'AT': 'countryAT', 'CH': 'countryCH', 'SE': 'countrySE', 'NL': 'countryNL', 'PL': 'countryPL', 'CZ': 'countryCZ', 'HU': 'countryHU', 'RO': 'countryRO', 'DD': 'countryDD', 'BE': 'countryBE', 'ES': 'countryES', 'XX': 'countryXX' };
+    const rarityKeys = { 'Comun': 'rarCommon', 'Neobișnuit': 'rarUncommon', 'Rar': 'rarRare', 'Foarte rar': 'rarVeryRare', 'Extrem de rar': 'rarExtremelyRare' };
+    const conditionKeys = { 'Excelentă': 'condExcellent', 'Bună': 'condGood', 'Acceptabilă': 'condFair', 'Necesită reparații': 'condPoor' };
     const data = dataToExport.map(c => ({
         Denumire: c.name, Marca: c.brand, Model: c.model, Tip: c.type, 'Tip secundar': c.type2, An: c.year,
-        Tara: countryNames[c.country] || c.country || '', 'Tip film': c.filmType, Serie: c.serial, Stare: c.status, Functional: c.functional, Raritate: c.rarity,
+        Tara: c.country ? t(countryKeys[c.country]) : '', 'Tip film': c.filmType, Serie: c.serial, 
+        Stare: c.status ? t(conditionKeys[c.status]) : '', 
+        Functional: c.functional === 'da' ? t('funcYes') : c.functional === 'nu' ? t('funcNo') : '', 
+        Raritate: c.rarity ? t(rarityKeys[c.rarity]) : '',
         Pret: c.purchasePrice, 'Valoare Catalog': c.catalogValue,
         Provenienta: c.source, Note: c.notes
     }));
@@ -1327,116 +1373,157 @@ function exportCameraPDF(id) {
     const c = cameras.find(x => x.id === id);
     if (!c) return;
     
-    const statusText = { 'Excelentă': 'Excelentă', 'Bună': 'Bună', 'Acceptabilă': 'Acceptabilă', 'Necesită reparații': 'Necesită reparații' }[c.status] || '—';
-    const funcText = c.functional === 'da' ? 'Da ✓' : c.functional === 'nu' ? 'Nu ✗' : '—';
-    const funcClass = c.functional === 'da' ? 'func-yes' : c.functional === 'nu' ? 'func-no' : '';
+    // Country codes mapping pentru flag images
+    const countryToFlag = { 
+        'DE': 'de', 'JP': 'jp', 'US': 'us', 'GB': 'gb', 'FR': 'fr', 'IT': 'it', 
+        'SU': 'ru', 'RU': 'ru', 'CN': 'cn', 'KR': 'kr', 'TW': 'tw', 
+        'AT': 'at', 'CH': 'ch', 'SE': 'se', 'NL': 'nl', 'PL': 'pl', 
+        'CZ': 'cz', 'HU': 'hu', 'RO': 'ro', 'DD': 'de', 'BE': 'be', 'ES': 'es', 'XX': null 
+    };
+    const countryKeys = { 'DE': 'countryDE', 'JP': 'countryJP', 'US': 'countryUS', 'GB': 'countryGB', 'FR': 'countryFR', 'IT': 'countryIT', 'SU': 'countrySU', 'RU': 'countryRU', 'CN': 'countryCN', 'KR': 'countryKR', 'TW': 'countryTW', 'AT': 'countryAT', 'CH': 'countryCH', 'SE': 'countrySE', 'NL': 'countryNL', 'PL': 'countryPL', 'CZ': 'countryCZ', 'HU': 'countryHU', 'RO': 'countryRO', 'DD': 'countryDD', 'BE': 'countryBE', 'ES': 'countryES', 'XX': 'countryXX' };
+    const rarityKeys = { 'Comun': 'rarCommon', 'Neobișnuit': 'rarUncommon', 'Rar': 'rarRare', 'Foarte rar': 'rarVeryRare', 'Extrem de rar': 'rarExtremelyRare' };
     
-    const htmlContent = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Fișă - ${esc(c.name)}</title><style>
-        body{font-family:Georgia,serif;padding:2rem;max-width:800px;margin:0 auto;color:#333}
-        .header{text-align:center;border-bottom:3px solid #8B7355;padding-bottom:1.5rem;margin-bottom:2rem}
-        .logo{font-size:1.2rem;color:#8B7355;letter-spacing:0.1em;margin-bottom:0.5rem}
-        h1{font-size:2rem;color:#1a1a1a;margin:0.5rem 0}
-        .brand{font-size:1.1rem;color:#666;text-transform:uppercase;letter-spacing:0.05em}
-        .content{display:grid;grid-template-columns:${c.image ? '250px 1fr' : '1fr'};gap:2rem;margin-bottom:2rem}
-        .photo{text-align:center}
-        .photo img{max-width:100%;max-height:300px;border-radius:8px;box-shadow:0 4px 15px rgba(0,0,0,0.1)}
-        .photo-placeholder{width:100%;height:200px;background:linear-gradient(135deg,#f0f0f0,#e0e0e0);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:4rem;color:#ccc}
-        .details{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
-        .detail-group{background:#f9f9f9;padding:1rem;border-radius:6px}
-        .detail-label{font-size:0.7rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.3rem}
-        .detail-value{font-size:1.1rem;color:#333}
-        .values{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:2rem;padding:1.5rem;background:linear-gradient(135deg,#f9f6f0,#f5f2eb);border-radius:8px}
-        .value-box{text-align:center}
-        .value-label{font-size:0.75rem;color:#888;text-transform:uppercase}
-        .value-amount{font-size:1.8rem;color:#8B7355;font-weight:bold}
-        .notes{margin-top:2rem;padding:1rem;background:#fff;border:1px solid #eee;border-radius:6px}
-        .notes-title{font-size:0.8rem;color:#888;text-transform:uppercase;margin-bottom:0.5rem}
-        .notes-text{color:#555;line-height:1.6}
-        .footer{margin-top:2rem;padding-top:1rem;border-top:1px solid #eee;text-align:center;font-size:0.8rem;color:#999}
-        .func-yes{color:green}
-        .func-no{color:red}
-        .no-print{text-align:center;margin-bottom:1rem}
-        .no-print button{padding:0.8rem 2rem;font-size:1rem;cursor:pointer;background:#8B7355;color:white;border:none;border-radius:4px;margin:0 0.5rem}
-        .no-print button:hover{background:#6d5a43}
-        @media print{.no-print{display:none}body{padding:1rem}.content{grid-template-columns:200px 1fr}}
-    </style></head><body>
-    <div class="no-print">
-        <button onclick="window.print()">🖨️ Printează</button>
-        <button onclick="window.close()">✕ Închide</button>
-    </div>
+    const statusText = { 'Excelentă': t('condExcellent'), 'Bună': t('condGood'), 'Acceptabilă': t('condFair'), 'Necesită reparații': t('condPoor') }[c.status] || '—';
+    const funcText = c.functional === 'da' ? `${t('funcYes')} ✓` : c.functional === 'nu' ? `${t('funcNo')} ✗` : '—';
+    const funcClass = c.functional === 'da' ? 'func-yes' : c.functional === 'nu' ? 'func-no' : '';
+    const rarityDisplay = c.rarity ? t(rarityKeys[c.rarity]) : '—';
+    const typesDisplay = [c.type, c.type2].filter(Boolean).join(' / ') || '—';
+    
+    // Generate short filename for PDF
+    const shortName = (c.name || 'Camera').substring(0, 12).trim().replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_');
+    const pdfFileName = 'Fisa_' + shortName;
+    
+    // Generate flag image HTML
+    const flagCode = c.country ? countryToFlag[c.country] : null;
+    const flagImg = flagCode ? `<img src="https://flagcdn.com/20x15/${flagCode}.png" alt="" style="vertical-align: middle; margin-right: 4px;">` : '';
+    const countryDisplay = c.country ? `${flagImg}${t(countryKeys[c.country])}` : '—';
+    
+    const htmlContent = `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<title>` + pdfFileName + `</title>
+<style>
+    @page { size: A4; margin: 10mm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { font-family: Georgia, serif; padding: 10mm; color: #333; background: #fff; display: flex; flex-direction: column; min-height: 277mm; }
+    
+    .content { flex: 1; display: flex; flex-direction: column; }
+    
+    /* Header */
+    .header { text-align: center; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 2px solid #8B7355; }
+    .logo { font-size: 12px; color: #8B7355; letter-spacing: 0.15em; text-transform: uppercase; }
+    .brand { font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 0.08em; }
+    h1 { font-size: 21px; color: #1a1a1a; margin: 4px 0; font-weight: normal; }
+    .subtitle { font-size: 12px; color: #666; }
+    
+    /* Photo Section - MAXIM */
+    .photo-section { text-align: center; margin-bottom: 12px; }
+    .photo-container { display: inline-block; padding: 6px; background: linear-gradient(135deg, #f8f6f3, #f0ece6); border-radius: 8px; box-shadow: 0 3px 15px rgba(0,0,0,0.12); }
+    .photo-container img { max-width: 100%; max-height: 340px; border-radius: 6px; display: block; }
+    .photo-placeholder { width: 400px; height: 300px; background: linear-gradient(135deg, #e8e4de, #d8d4ce); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #bbb; }
+    
+    /* Info Grid - inline */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; margin-bottom: 10px; font-size: 14px; }
+    .info-row { display: flex; align-items: center; padding: 5px 0; border-bottom: 1px dotted #e0e0e0; }
+    .info-label { color: #888; min-width: 110px; font-size: 12px; }
+    .info-value { color: #333; font-weight: 500; font-size: 14px; }
+    .info-value.highlight { color: #8B7355; font-weight: 600; }
+    
+    /* Values - compact */
+    .values-row { display: flex; justify-content: center; gap: 30px; margin: 12px 0; padding: 12px 20px; background: linear-gradient(135deg, #8B7355, #6d5a43); border-radius: 8px; color: white; }
+    .value-item { text-align: center; }
+    .value-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; }
+    .value-amount { font-size: 20px; font-weight: bold; margin-top: 2px; }
+    
+    /* Notes - always visible with min height */
+    .notes { flex: 1; min-height: 80px; padding: 10px; background: #fffef9; border: 1px solid #e8e4d8; border-radius: 6px; margin-bottom: 10px; }
+    .notes-title { font-size: 10px; color: #8B7355; text-transform: uppercase; margin-bottom: 5px; font-weight: 600; }
+    .notes-text { color: #555; line-height: 1.5; font-size: 13px; }
+    .notes-empty { color: #ccc; font-style: italic; font-size: 12px; }
+    
+    /* Footer */
+    .footer { padding-top: 8px; border-top: 1px solid #e0dcd6; text-align: center; font-size: 9px; color: #aaa; }
+    
+    .func-yes { color: #2e7d32; }
+    .func-no { color: #c62828; }
+    
+    /* Print Controls */
+    .no-print { text-align: center; margin-bottom: 15px; padding: 10px; background: #f5f5f5; border-radius: 8px; }
+    .no-print button { padding: 8px 20px; font-size: 14px; cursor: pointer; background: #8B7355; color: white; border: none; border-radius: 6px; margin: 0 5px; }
+    .no-print button:hover { background: #6d5a43; }
+    .no-print .filename { margin-top: 8px; font-size: 11px; color: #666; }
+    .no-print .filename strong { color: #8B7355; }
+    
+    @media print {
+        .no-print { display: none !important; }
+        body { padding: 5mm; min-height: auto; }
+        .values-row { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+</style>
+</head>
+<body>
+
+<div class="no-print">
+    <button onclick="window.print()">🖨️ Printează / Salvează PDF</button>
+    <button onclick="window.close()">✕ Închide</button>
+</div>
+
+<div class="content">
+    <!-- Header -->
     <div class="header">
-        <div class="logo">CAMERA ARENA</div>
+        <div class="logo">◈ Camera Arena ◈</div>
         <div class="brand">${esc(c.brand || '')}</div>
         <h1>${esc(c.name)}</h1>
+        <div class="subtitle">${typesDisplay}${c.year ? ' • ' + c.year : ''}</div>
     </div>
-    <div class="content">
-        <div class="photo">
-            ${c.image 
-                ? `<img src="${c.image}" alt="${esc(c.name)}">` 
-                : '<div class="photo-placeholder">📷</div>'}
-        </div>
-        <div class="details">
-            <div class="detail-group">
-                <div class="detail-label">Tip aparat</div>
-                <div class="detail-value">${esc(c.type || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Tip secundar</div>
-                <div class="detail-value">${esc(c.type2 || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">An fabricație</div>
-                <div class="detail-value">${c.year || '—'}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Țara de origine</div>
-                <div class="detail-value">${(() => { const flags = { 'DE': '🇩🇪 Germania', 'JP': '🇯🇵 Japonia', 'US': '🇺🇸 SUA', 'GB': '🇬🇧 Marea Britanie', 'FR': '🇫🇷 Franța', 'IT': '🇮🇹 Italia', 'SU': '🇷🇺 URSS', 'RU': '🇷🇺 Rusia', 'CN': '🇨🇳 China', 'KR': '🇰🇷 Coreea de Sud', 'TW': '🇹🇼 Taiwan', 'AT': '🇦🇹 Austria', 'CH': '🇨🇭 Elveția', 'SE': '🇸🇪 Suedia', 'NL': '🇳🇱 Olanda', 'PL': '🇵🇱 Polonia', 'CZ': '🇨🇿 Cehia', 'HU': '🇭🇺 Ungaria', 'RO': '🇷🇴 România', 'DD': '🇩🇪 Germania de Est', 'XX': '🌍 Altă țară' }; return flags[c.country] || '—'; })()}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Tip film</div>
-                <div class="detail-value">${esc(c.filmType || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Raritate</div>
-                <div class="detail-value">${esc(c.rarity || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Număr serie</div>
-                <div class="detail-value">${esc(c.serial || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Stare</div>
-                <div class="detail-value">${statusText}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Funcțional</div>
-                <div class="detail-value ${funcClass}">${funcText}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Proveniență</div>
-                <div class="detail-value">${esc(c.source || '—')}</div>
-            </div>
-            <div class="detail-group">
-                <div class="detail-label">Data achiziției</div>
-                <div class="detail-value">${c.purchaseDate ? new Date(c.purchaseDate).toLocaleDateString('ro-RO') : '—'}</div>
-            </div>
+    
+    <!-- Photo - MARE -->
+    <div class="photo-section">
+        <div class="photo-container">
+            ${c.image ? `<img src="${c.image}" alt="${esc(c.name)}">` : '<div class="photo-placeholder">📷</div>'}
         </div>
     </div>
-    <div class="values">
-        <div class="value-box">
+    
+    <!-- Info Grid -->
+    <div class="info-grid">
+        <div class="info-row"><span class="info-label">Țara origine:</span><span class="info-value">${countryDisplay}</span></div>
+        <div class="info-row"><span class="info-label">Tip film:</span><span class="info-value">${esc(c.filmType || '—')}</span></div>
+        <div class="info-row"><span class="info-label">Raritate:</span><span class="info-value highlight">${rarityDisplay}</span></div>
+        <div class="info-row"><span class="info-label">Stare:</span><span class="info-value">${statusText}</span></div>
+        <div class="info-row"><span class="info-label">Funcțional:</span><span class="info-value ${funcClass}">${funcText}</span></div>
+        <div class="info-row"><span class="info-label">Nr. serie:</span><span class="info-value">${esc(c.serial || '—')}</span></div>
+        <div class="info-row"><span class="info-label">Tip aparat:</span><span class="info-value">${esc(c.type || '—')}</span></div>
+        <div class="info-row"><span class="info-label">An fabricație:</span><span class="info-value">${c.year || '—'}</span></div>
+        <div class="info-row"><span class="info-label">Proveniență:</span><span class="info-value">${esc(c.source || '—')}</span></div>
+        <div class="info-row"><span class="info-label">Data achiziție:</span><span class="info-value">${c.purchaseDate ? new Date(c.purchaseDate).toLocaleDateString('ro-RO') : '—'}</span></div>
+    </div>
+    
+    <!-- Values -->
+    <div class="values-row">
+        <div class="value-item">
             <div class="value-label">Preț achiziție</div>
             <div class="value-amount">${c.purchasePrice ? c.purchasePrice + ' €' : '—'}</div>
         </div>
-        <div class="value-box">
+        <div class="value-item">
             <div class="value-label">Valoare catalog</div>
             <div class="value-amount">${c.catalogValue ? c.catalogValue + ' €' : '—'}</div>
         </div>
     </div>
-    ${c.notes ? `<div class="notes"><div class="notes-title">Note / Observații</div><div class="notes-text">${esc(c.notes)}</div></div>` : ''}
-    <div class="footer">
-        Camera Arena • Colecția: ${esc(settings.ownerName || 'Merlinlx')} • Fișă generată la ${new Date().toLocaleDateString('ro-RO')}
+    
+    <!-- Notes - always present -->
+    <div class="notes">
+        <div class="notes-title">📝 Note / Observații</div>
+        <div class="notes-text">${c.notes ? esc(c.notes) : '<span class="notes-empty">Nicio notă adăugată.</span>'}</div>
     </div>
-    </body></html>`;
+    
+    <!-- Footer -->
+    <div class="footer">
+        Camera Arena • Colecția: ${esc(settings.ownerName || 'Merlinlx')}
+    </div>
+</div>
+
+</body></html>`;
     
     const newWindow = window.open('', '_blank');
     if (newWindow) {
@@ -1445,7 +1532,6 @@ function exportCameraPDF(id) {
         newWindow.focus();
     }
     
-    // Restore focus to main window
     setTimeout(() => { window.focus(); }, 100);
 }
 
