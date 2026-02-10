@@ -23,16 +23,23 @@
         header::after { content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%); width: 100px; height: 3px; background: linear-gradient(90deg, transparent, var(--accent-primary), transparent); }
         .logo { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary-light), var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .tagline { font-size: 0.85rem; color: var(--text-secondary); font-weight: 300; letter-spacing: 0.15em; text-transform: uppercase; }
-        .settings-btn { position: absolute; top: 1.5rem; right: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .settings-btn { position: absolute; top: 1.5rem; right: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); color: var(--text-secondary); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; position: relative; }
         .settings-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .settings-container { position: absolute; top: 1.5rem; right: 0; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; }
+        .settings-container .settings-btn { position: relative; top: auto; right: auto; }
+        .settings-label { font-size: 0.6rem; color: var(--text-muted); text-align: center; }
         .storage-indicator { position: absolute; top: 1.5rem; left: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.7rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem; }
         .storage-bar { width: 50px; height: 5px; background: var(--border-subtle); border-radius: 3px; overflow: hidden; }
         .storage-fill { height: 100%; background: var(--accent-primary); border-radius: 3px; }
-        .stats-bar { display: flex; justify-content: center; gap: 3rem; padding: 1.5rem 0; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stats-bar { display: flex; justify-content: center; gap: 2rem; padding: 1.2rem 0; margin-bottom: 0.5rem; flex-wrap: wrap; align-items: flex-start; }
         .stat-item { text-align: center; }
-        .stat-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; color: var(--accent-primary); }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-        .stat-filtered { font-size: 0.8rem; color: var(--text-primary); margin-top: 0.3rem; opacity: 0.9; min-height: 1.2em; }
+        .stat-value { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 600; color: var(--accent-primary); }
+        .stat-label { font-size: 0.64rem; color: var(--text-muted); text-transform: uppercase; }
+        .stat-filtered { font-size: 0.68rem; color: var(--text-primary); margin-top: 0.25rem; opacity: 0.9; min-height: 1.1em; }
+        .dates-row { text-align: left; padding: 0 0 1rem 0; margin-bottom: 1rem; font-size: 0.75rem; color: var(--text-muted); }
+        .dates-row .date-info { }
+        .dates-row .date-separator { margin: 0 0.8rem; opacity: 0.5; }
+        .dates-row #lastUpdateDate, .dates-row #lastAddedDate { color: var(--text-secondary); }
         .actions { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 4px; font-family: 'Source Sans 3', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; text-transform: uppercase; transition: all 0.2s; }
         .btn-primary { background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: var(--bg-dark); }
@@ -280,7 +287,10 @@
                 <div class="storage-bar"><div class="storage-fill" id="storageBarFill"></div></div>
                 <span id="storageText">0 MB</span>
             </div>
-            <button class="settings-btn" onclick="openSettingsModal()">⚙</button>
+            <div class="settings-container">
+                <button class="settings-btn" onclick="openSettingsModal()">⚙</button>
+                <span class="settings-label">Setări/Settings</span>
+            </div>
             <h1 class="logo">Camera Arena</h1>
             <p class="tagline"><span id="ownerDisplay">Merlinlx</span> • <span id="tagline">Colecția Personală de Aparate Foto</span></p>
         </header>
@@ -309,10 +319,16 @@
         </div>
         
         <div class="actions">
-            <button class="btn btn-primary" onclick="openAddModal()"><span>+</span> <span>Adaugă Aparat</span></button>
-            <button class="btn btn-secondary" onclick="openImportModal()"><span>↑</span> <span>Import Excel</span></button>
-            <button class="btn btn-secondary" onclick="exportToExcel()"><span>↓</span> <span>Export Excel</span></button>
-            <button class="btn btn-secondary" onclick="exportToPDF()"><span>📄</span> <span>Export PDF</span></button>
+            <button class="btn btn-primary" onclick="openAddModal()"><span>+</span> <span id="btnAddCameraText">Adaugă Aparat</span></button>
+            <button class="btn btn-secondary" onclick="exportBackup()"><span>💾</span> <span id="btnBackupText">Backup</span></button>
+            <button class="btn btn-secondary" onclick="exportToExcel()"><span>↓</span> <span id="btnExportExcelText">Export Excel</span></button>
+            <button class="btn btn-secondary" onclick="exportToPDF()"><span>📄</span> <span id="btnExportPDFText">Export PDF</span></button>
+        </div>
+        
+        <div class="dates-row">
+            <span class="date-info"><span id="lblLastUpdate">Ultima actualizare</span>: <span id="lastUpdateDate">—</span></span>
+            <span class="date-separator">•</span>
+            <span class="date-info"><span id="lblLastAdded">Ultimul adăugat</span>: <span id="lastAddedDate">—</span></span>
         </div>
         
         <div class="filters">
@@ -348,48 +364,48 @@
                 <form id="cameraForm">
                     <input type="hidden" id="cameraId">
                     <div class="form-group">
-                        <label class="form-label">Denumire *</label>
+                        <label class="form-label" id="lblNameForm">Denumire *</label>
                         <input type="text" class="form-input" id="cameraName" required>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Marca *</label>
+                            <label class="form-label" id="lblBrandForm">Marca *</label>
                             <input type="text" class="form-input" id="cameraBrand" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Model *</label>
+                            <label class="form-label" id="lblModelForm">Model *</label>
                             <input type="text" class="form-input" id="cameraModelInput" required>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Tip</label>
+                            <label class="form-label" id="lblTypeForm">Tip</label>
                             <select class="form-input" id="cameraType"></select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Tip secundar</label>
+                            <label class="form-label" id="lblType2Form">Tip secundar</label>
                             <select class="form-input" id="cameraType2"></select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">An fabricație</label>
+                            <label class="form-label" id="lblYearForm">An fabricație</label>
                             <input type="number" class="form-input" id="cameraYear" min="1800" max="2030">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Raritate</label>
+                            <label class="form-label" id="lblRarityForm">Raritate</label>
                             <select class="form-input" id="cameraRarity">
                             </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Țara de origine</label>
+                            <label class="form-label" id="lblCountryForm">Țara de origine</label>
                             <select class="form-input" id="cameraCountry">
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Tip film</label>
+                            <label class="form-label" id="lblFilmTypeForm">Tip film</label>
                             <select class="form-input" id="cameraFilmType">
                                 <option value="">Selectează...</option>
                                 <option value="Plăci">Plăci (Glass Plates)</option>
@@ -418,17 +434,17 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Număr serie</label>
+                            <label class="form-label" id="lblSerialForm">Număr serie</label>
                             <input type="text" class="form-input" id="cameraSerial">
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Stare</label>
+                            <label class="form-label" id="lblStatusForm">Stare</label>
                             <select class="form-input" id="cameraStatus"></select>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Funcțional</label>
+                            <label class="form-label" id="lblFunctionalForm">Funcțional</label>
                             <select class="form-input" id="cameraFunctional">
                                 <option value="">Selectează...</option>
                                 <option value="da">Da</option>
@@ -437,42 +453,42 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Proveniență</label>
+                        <label class="form-label" id="lblSourceForm">Proveniență</label>
                         <input type="text" class="form-input" id="cameraSource">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label class="form-label">Preț achiziție (€)</label>
+                            <label class="form-label" id="lblPurchasePriceForm">Preț achiziție (€)</label>
                             <input type="number" class="form-input" id="cameraPurchasePrice" min="0" step="0.01">
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Valoare catalog (€)</label>
+                            <label class="form-label" id="lblCatalogValueForm">Valoare catalog (€)</label>
                             <input type="number" class="form-input" id="cameraCatalogValue" min="0" step="0.01">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Data achiziției</label>
+                        <label class="form-label" id="lblPurchaseDateForm">Data achiziției</label>
                         <input type="date" class="form-input" id="cameraPurchaseDate">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Fotografie</label>
+                        <label class="form-label" id="lblPhotoForm">Fotografie</label>
                         <input type="file" class="form-input form-input-file" id="cameraImage" accept="image/*" onchange="previewImage(event)">
-                        <p class="image-info">Imaginile se comprimă automat la ~80KB</p>
+                        <p class="image-info" id="lblImageCompressInfoForm">Imaginile se comprimă automat la ~80KB</p>
                         <div id="imagePreviewContainer" class="image-preview-container" style="display:none;">
                             <img id="imagePreview">
                             <p class="image-info" id="compressedSize"></p>
-                            <button type="button" class="btn btn-delete-image" onclick="deleteImage()">🗑️ Șterge imaginea</button>
+                            <button type="button" class="btn btn-delete-image" onclick="deleteImage()" id="btnDeleteImage">🗑️ Șterge imaginea</button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Note</label>
+                        <label class="form-label" id="lblNotesForm">Note</label>
                         <textarea class="form-input" id="cameraNotes" rows="2"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">Anulează</button>
-                <button class="btn btn-primary" onclick="saveCamera()">Salvează</button>
+                <button class="btn btn-secondary" onclick="closeModal()" id="btnCancelCamera">Anulează</button>
+                <button class="btn btn-primary" onclick="saveCamera()" id="btnSaveCamera">Salvează</button>
             </div>
         </div>
     </div>
@@ -508,18 +524,18 @@
     <div class="modal-overlay" id="settingsModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 class="modal-title">⚙ Setări</h2>
+                <h2 class="modal-title" id="settingsModalTitle">⚙ Setări</h2>
                 <button class="modal-close" onclick="closeSettingsModal()">×</button>
             </div>
             <div class="modal-body">
                 <div class="settings-section">
-                    <h3>👤 Proprietar</h3>
+                    <h3 id="settingsOwnerTitle">👤 Proprietar</h3>
                     <div class="form-group" style="margin-bottom:0">
                         <input type="text" class="form-input" id="ownerNameInput" value="Merlinlx" placeholder="Numele proprietarului" onchange="setOwnerName(this.value)">
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h3>🌐 Limbă</h3>
+                    <h3 id="settingsLanguageTitle">🌐 Limbă</h3>
                     <div class="language-options">
                         <div class="language-option active" data-lang="ro" onclick="setLanguage('ro')">
                             <div class="language-option-flag">🇷🇴</div>
@@ -529,10 +545,18 @@
                             <div class="language-option-flag">🇬🇧</div>
                             <div class="language-option-label">English</div>
                         </div>
+                        <div class="language-option" data-lang="de" onclick="setLanguage('de')">
+                            <div class="language-option-flag">🇩🇪</div>
+                            <div class="language-option-label">Deutsch</div>
+                        </div>
+                        <div class="language-option" data-lang="fr" onclick="setLanguage('fr')">
+                            <div class="language-option-flag">🇫🇷</div>
+                            <div class="language-option-label">Français</div>
+                        </div>
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h3>🎨 Culoare</h3>
+                    <h3 id="settingsColorTitle">🎨 Culoare</h3>
                     <div class="color-options">
                         <div class="color-option color-gold active" data-theme="gold" onclick="setTheme('gold')"></div>
                         <div class="color-option color-blue" data-theme="blue" onclick="setTheme('blue')"></div>
@@ -543,46 +567,46 @@
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h3>☀ Mod</h3>
+                    <h3 id="settingsModeTitle">☀ Mod</h3>
                     <div class="mode-options">
                         <div class="mode-option active" data-mode="dark" onclick="setMode('dark')">
                             <div class="mode-option-icon">🌙</div>
-                            <div class="mode-option-label">Întunecat</div>
+                            <div class="mode-option-label" id="settingsModeDarkLabel">Întunecat</div>
                         </div>
                         <div class="mode-option" data-mode="light" onclick="setMode('light')">
                             <div class="mode-option-icon">☀️</div>
-                            <div class="mode-option-label">Luminos</div>
+                            <div class="mode-option-label" id="settingsModeLightLabel">Luminos</div>
                         </div>
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h3>💾 Stocare (IndexedDB)</h3>
+                    <h3 id="settingsStorageTitle">💾 Stocare (IndexedDB)</h3>
                     <div class="storage-stats">
                         <div class="storage-stat">
                             <div class="storage-stat-value" id="dbCameras">0</div>
-                            <div class="storage-stat-label">Aparate</div>
+                            <div class="storage-stat-label" id="settingsCamerasLabel">Aparate</div>
                         </div>
                         <div class="storage-stat">
                             <div class="storage-stat-value" id="dbSize">0 MB</div>
-                            <div class="storage-stat-label">Dimensiune</div>
+                            <div class="storage-stat-label" id="settingsSizeLabel">Dimensiune</div>
                         </div>
                     </div>
                     <div class="storage-actions">
-                        <button class="btn btn-secondary" onclick="exportBackup()">↓ Backup</button>
-                        <button class="btn btn-secondary" onclick="document.getElementById('backupFile').click()">↑ Restaurare</button>
+                        <button class="btn btn-secondary" onclick="openImportModal(); closeSettingsModal();" id="btnImportExcel">↑ Import Excel</button>
+                        <button class="btn btn-secondary" onclick="document.getElementById('backupFile').click()" id="btnRestoreBackup">↑ Restaurare Backup</button>
                         <input type="file" id="backupFile" accept=".json" style="display:none" onchange="importBackup(event)">
                     </div>
                     <div class="storage-actions" style="margin-top:0.5rem;">
-                        <button class="btn btn-secondary" onclick="migrateFromLocalStorage()">🔄 Migrare localStorage</button>
+                        <button class="btn btn-secondary" onclick="migrateFromLocalStorage()" id="btnMigrate">🔄 Migrare localStorage</button>
                     </div>
                 </div>
                 <div class="settings-section">
-                    <h3>⚠️ Pericol</h3>
-                    <button class="btn btn-secondary" style="border-color:var(--danger);color:var(--danger);width:100%;" onclick="clearAllData()">🗑 Șterge toate datele</button>
+                    <h3 id="settingsDangerTitle">⚠️ Pericol</h3>
+                    <button class="btn btn-secondary" style="border-color:var(--danger);color:var(--danger);width:100%;" onclick="clearAllData()" id="btnDeleteAll">🗑 Șterge toate datele</button>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" onclick="closeSettingsModal()">Închide</button>
+                <button class="btn btn-primary" onclick="closeSettingsModal()" id="btnCloseSettings">Închide</button>
             </div>
         </div>
     </div>
@@ -709,7 +733,43 @@ const i18n = {
         // Functional
         funcYes: 'Da', funcNo: 'Nu',
         // Extra labels
-        colYearLaunch: 'An lansare model'
+        colYearLaunch: 'An lansare model',
+        lastUpdate: 'Ultima actualizare', lastAdded: 'Ultimul adăugat',
+        // Buttons
+        btnAddCamera: 'Adaugă Aparat', btnBackup: 'Backup', btnExportExcel: 'Export Excel', btnExportPDF: 'Export PDF',
+        btnSave: 'Salvează', btnCancel: 'Anulează', btnClose: 'Închide', btnImport: 'Importă', btnPrint: 'Printează',
+        modalTitleAdd: 'Adaugă Aparat', modalTitleEdit: 'Editează Aparat',
+        // Form labels
+        lblName: 'Denumire', lblBrand: 'Marca', lblModel: 'Model', lblType: 'Tip', lblType2: 'Tip secundar',
+        lblYear: 'An fabricație', lblRarity: 'Raritate', lblCountry: 'Țara de origine', lblFilmType: 'Tip film',
+        lblSerial: 'Număr serie', lblStatus: 'Stare', lblFunctional: 'Funcțional', lblSource: 'Proveniență',
+        lblPurchasePrice: 'Preț achiziție (€)', lblCatalogValue: 'Valoare catalog (€)', lblPurchaseDate: 'Data achiziției',
+        lblPhoto: 'Fotografie', lblNotes: 'Note', lblDeleteImage: 'Șterge imaginea',
+        lblImageCompressInfo: 'Imaginile se comprimă automat la ~80KB',
+        // PDF labels
+        pdfCountry: 'Țara origine', pdfFilmType: 'Tip film', pdfRarity: 'Raritate', pdfCondition: 'Stare',
+        pdfFunctional: 'Funcțional', pdfSerial: 'Nr. serie', pdfType: 'Tip aparat', pdfYear: 'An fabricație',
+        pdfSource: 'Proveniență', pdfPurchaseDate: 'Data achiziție', pdfPurchasePrice: 'Preț achiziție',
+        pdfCatalogValue: 'Valoare catalog', pdfNotes: 'Note / Observații', pdfNoNotes: 'Nicio notă adăugată.',
+        pdfCollection: 'Colecția', pdfPrint: 'Printează / Salvează PDF', pdfClose: 'Închide',
+        // Search
+        searchPlaceholder: 'Caută...', searchEbay: 'Caută pe eBay',
+        // Tooltips
+        tooltipPDF: 'Fișă PDF', tooltipEdit: 'Editează', tooltipDelete: 'Șterge',
+        // Settings
+        settingsTitle: 'Setări', settingsOwner: 'Proprietar', settingsOwnerPlaceholder: 'Numele proprietarului',
+        settingsLanguage: 'Limbă', settingsColor: 'Culoare', settingsMode: 'Mod',
+        settingsModeDark: 'Întunecat', settingsModeLight: 'Luminos',
+        settingsStorage: 'Stocare (IndexedDB)', settingsSize: 'Dimensiune',
+        settingsImportExcel: 'Import Excel', settingsRestoreBackup: 'Restaurare Backup',
+        settingsMigrate: 'Migrare localStorage', settingsDanger: 'Pericol',
+        settingsDeleteAll: 'Șterge toate datele',
+        // Types
+        typeSLRFilm: 'SLR Film', typeSLRDigital: 'SLR Digital', typeMirrorless: 'Mirrorless', typeRangefinder: 'Rangefinder', 
+        typeCompactFilm: 'Compact Film', typeCompactDigital: 'Compact Digital', typeMediumFormat: 'Format Mediu', typeLargeFormat: 'Format Mare', 
+        typeInstant: 'Instant', typeTLR: 'TLR', typeBox: 'Box Camera', typeFolding: 'Aparat Pliabil', 
+        typeMicroSpy: 'Micro-Spy', typeView: 'View Camera', typeMotor: 'Motor cu arc', typeOther: 'Altele',
+        typeLens: 'Obiectiv', typeLightMeter: 'Luxmetru', typeRangefinderAcc: 'Telemetru', typeShutter: 'Declanșator'
     },
     en: { 
         tagline: 'Personal Camera Collection', cameras: 'Cameras', brands: 'Brands', purchaseValue: 'Purchase Value', catalogValue: 'Catalog Value', 
@@ -730,7 +790,157 @@ const i18n = {
         // Functional
         funcYes: 'Yes', funcNo: 'No',
         // Extra labels
-        colYearLaunch: 'Model launch year'
+        colYearLaunch: 'Model launch year',
+        lastUpdate: 'Last update', lastAdded: 'Last added',
+        // Buttons
+        btnAddCamera: 'Add Camera', btnBackup: 'Backup', btnExportExcel: 'Export Excel', btnExportPDF: 'Export PDF',
+        btnSave: 'Save', btnCancel: 'Cancel', btnClose: 'Close', btnImport: 'Import', btnPrint: 'Print',
+        modalTitleAdd: 'Add Camera', modalTitleEdit: 'Edit Camera',
+        // Form labels
+        lblName: 'Name', lblBrand: 'Brand', lblModel: 'Model', lblType: 'Type', lblType2: 'Secondary type',
+        lblYear: 'Year of manufacture', lblRarity: 'Rarity', lblCountry: 'Country of origin', lblFilmType: 'Film type',
+        lblSerial: 'Serial number', lblStatus: 'Condition', lblFunctional: 'Functional', lblSource: 'Source',
+        lblPurchasePrice: 'Purchase price (€)', lblCatalogValue: 'Catalog value (€)', lblPurchaseDate: 'Purchase date',
+        lblPhoto: 'Photo', lblNotes: 'Notes', lblDeleteImage: 'Delete image',
+        lblImageCompressInfo: 'Images are automatically compressed to ~80KB',
+        // PDF labels
+        pdfCountry: 'Country of origin', pdfFilmType: 'Film type', pdfRarity: 'Rarity', pdfCondition: 'Condition',
+        pdfFunctional: 'Functional', pdfSerial: 'Serial no.', pdfType: 'Camera type', pdfYear: 'Year of manufacture',
+        pdfSource: 'Source', pdfPurchaseDate: 'Purchase date', pdfPurchasePrice: 'Purchase price',
+        pdfCatalogValue: 'Catalog value', pdfNotes: 'Notes / Observations', pdfNoNotes: 'No notes added.',
+        pdfCollection: 'Collection', pdfPrint: 'Print / Save PDF', pdfClose: 'Close',
+        // Search
+        searchPlaceholder: 'Search...', searchEbay: 'Search on eBay',
+        // Tooltips
+        tooltipPDF: 'PDF Sheet', tooltipEdit: 'Edit', tooltipDelete: 'Delete',
+        // Settings
+        settingsTitle: 'Settings', settingsOwner: 'Owner', settingsOwnerPlaceholder: 'Owner name',
+        settingsLanguage: 'Language', settingsColor: 'Color', settingsMode: 'Mode',
+        settingsModeDark: 'Dark', settingsModeLight: 'Light',
+        settingsStorage: 'Storage (IndexedDB)', settingsSize: 'Size',
+        settingsImportExcel: 'Import Excel', settingsRestoreBackup: 'Restore Backup',
+        settingsMigrate: 'Migrate localStorage', settingsDanger: 'Danger',
+        settingsDeleteAll: 'Delete all data',
+        // Types
+        typeSLRFilm: 'SLR Film', typeSLRDigital: 'SLR Digital', typeMirrorless: 'Mirrorless', typeRangefinder: 'Rangefinder', 
+        typeCompactFilm: 'Compact Film', typeCompactDigital: 'Compact Digital', typeMediumFormat: 'Medium Format', typeLargeFormat: 'Large Format', 
+        typeInstant: 'Instant', typeTLR: 'TLR', typeBox: 'Box Camera', typeFolding: 'Folding Camera', 
+        typeMicroSpy: 'Micro-Spy', typeView: 'View Camera', typeMotor: 'Spring Motor', typeOther: 'Other',
+        typeLens: 'Lens', typeLightMeter: 'Light Meter', typeRangefinderAcc: 'Rangefinder', typeShutter: 'Shutter Release'
+    },
+    de: { 
+        tagline: 'Persönliche Kamerasammlung', cameras: 'Kameras', brands: 'Marken', purchaseValue: 'Kaufwert', catalogValue: 'Katalogwert', 
+        allTypes: 'Alle Typen', allFilmTypes: 'Alle Filmtypen', allRarities: 'Alle Seltenheiten', allCountries: 'Alle Länder', allConditions: 'Alle Zustände', 
+        condExcellent: 'Ausgezeichnet', condGood: 'Gut', condFair: 'Akzeptabel', condPoor: 'Reparaturbedürftig', 
+        sortNewest: 'Neueste', sortOldest: 'Älteste', sortNameAZ: 'Name A-Z', sortNameZA: 'Name Z-A', sortBrandAZ: 'Marke A-Z', sortBrandZA: 'Marke Z-A', sortYearDesc: 'Jahr ↓', sortYearAsc: 'Jahr ↑', sortPriceDesc: 'Preis ↓', sortPriceAsc: 'Preis ↑', sortCatalogDesc: 'Katalog ↓', sortCatalogAsc: 'Katalog ↑', 
+        unknown: 'Unbekannt', selectOption: 'Auswählen...', 
+        toastAdded: 'Kamera hinzugefügt', toastUpdated: 'Kamera aktualisiert', toastDeleted: 'Kamera gelöscht', toastImported: 'Kameras importiert', toastBackupSaved: 'Backup gespeichert', toastBackupRestored: 'Kameras wiederhergestellt', toastMigrated: 'Daten migriert', toastAllDeleted: 'Daten gelöscht', 
+        confirmDelete: 'Diese Kamera löschen?', confirmDeleteAll: 'ALLE Daten löschen?', alertRequired: 'Pflichtfelder ausfüllen!', alertNoData: 'Keine Daten.', loading: 'Laden...', saving: 'Speichern...', 
+        colYear: 'Jahr', colType: 'Typ', colSerial: 'Seriennr.', colSource: 'Herkunft', colPurchase: 'Kauf', colCatalog: 'Katalog', colStatus: 'Zustand', colRarity: 'Seltenheit', colFilmType: 'Film', colCountry: 'Land',
+        // Rarities
+        rarCommon: 'Häufig', rarUncommon: 'Ungewöhnlich', rarRare: 'Selten', rarVeryRare: 'Sehr selten', rarExtremelyRare: 'Extrem selten',
+        // Countries
+        countryDE: 'Deutschland', countryJP: 'Japan', countryUS: 'USA', countryGB: 'Großbritannien', countryFR: 'Frankreich', countryIT: 'Italien', 
+        countrySU: 'UdSSR', countryRU: 'Russland', countryCN: 'China', countryKR: 'Südkorea', countryTW: 'Taiwan', 
+        countryAT: 'Österreich', countryCH: 'Schweiz', countrySE: 'Schweden', countryNL: 'Niederlande', countryPL: 'Polen', 
+        countryCZ: 'Tschechien', countryHU: 'Ungarn', countryRO: 'Rumänien', countryDD: 'DDR', countryBE: 'Belgien', countryES: 'Spanien', countryXX: 'Anderes Land',
+        // Functional
+        funcYes: 'Ja', funcNo: 'Nein',
+        // Extra labels
+        colYearLaunch: 'Modell-Erscheinungsjahr',
+        lastUpdate: 'Letzte Aktualisierung', lastAdded: 'Zuletzt hinzugefügt',
+        // Buttons
+        btnAddCamera: 'Kamera hinzufügen', btnBackup: 'Backup', btnExportExcel: 'Excel Export', btnExportPDF: 'PDF Export',
+        btnSave: 'Speichern', btnCancel: 'Abbrechen', btnClose: 'Schließen', btnImport: 'Importieren', btnPrint: 'Drucken',
+        modalTitleAdd: 'Kamera hinzufügen', modalTitleEdit: 'Kamera bearbeiten',
+        // Form labels
+        lblName: 'Bezeichnung', lblBrand: 'Marke', lblModel: 'Modell', lblType: 'Typ', lblType2: 'Sekundärtyp',
+        lblYear: 'Baujahr', lblRarity: 'Seltenheit', lblCountry: 'Herkunftsland', lblFilmType: 'Filmtyp',
+        lblSerial: 'Seriennummer', lblStatus: 'Zustand', lblFunctional: 'Funktionsfähig', lblSource: 'Herkunft',
+        lblPurchasePrice: 'Kaufpreis (€)', lblCatalogValue: 'Katalogwert (€)', lblPurchaseDate: 'Kaufdatum',
+        lblPhoto: 'Foto', lblNotes: 'Notizen', lblDeleteImage: 'Bild löschen',
+        lblImageCompressInfo: 'Bilder werden automatisch auf ~80KB komprimiert',
+        // PDF labels
+        pdfCountry: 'Herkunftsland', pdfFilmType: 'Filmtyp', pdfRarity: 'Seltenheit', pdfCondition: 'Zustand',
+        pdfFunctional: 'Funktionsfähig', pdfSerial: 'Seriennr.', pdfType: 'Kameratyp', pdfYear: 'Baujahr',
+        pdfSource: 'Herkunft', pdfPurchaseDate: 'Kaufdatum', pdfPurchasePrice: 'Kaufpreis',
+        pdfCatalogValue: 'Katalogwert', pdfNotes: 'Notizen / Bemerkungen', pdfNoNotes: 'Keine Notizen hinzugefügt.',
+        pdfCollection: 'Sammlung', pdfPrint: 'Drucken / Als PDF speichern', pdfClose: 'Schließen',
+        // Search
+        searchPlaceholder: 'Suchen...', searchEbay: 'Auf eBay suchen',
+        // Tooltips
+        tooltipPDF: 'PDF-Blatt', tooltipEdit: 'Bearbeiten', tooltipDelete: 'Löschen',
+        // Settings
+        settingsTitle: 'Einstellungen', settingsOwner: 'Eigentümer', settingsOwnerPlaceholder: 'Name des Eigentümers',
+        settingsLanguage: 'Sprache', settingsColor: 'Farbe', settingsMode: 'Modus',
+        settingsModeDark: 'Dunkel', settingsModeLight: 'Hell',
+        settingsStorage: 'Speicher (IndexedDB)', settingsSize: 'Größe',
+        settingsImportExcel: 'Excel importieren', settingsRestoreBackup: 'Backup wiederherstellen',
+        settingsMigrate: 'localStorage migrieren', settingsDanger: 'Gefahr',
+        settingsDeleteAll: 'Alle Daten löschen',
+        // Types
+        typeSLRFilm: 'SLR Film', typeSLRDigital: 'SLR Digital', typeMirrorless: 'Spiegellos', typeRangefinder: 'Messsucherkamera', 
+        typeCompactFilm: 'Kompakt Film', typeCompactDigital: 'Kompakt Digital', typeMediumFormat: 'Mittelformat', typeLargeFormat: 'Großformat', 
+        typeInstant: 'Sofortbild', typeTLR: 'TLR', typeBox: 'Boxkamera', typeFolding: 'Klappkamera', 
+        typeMicroSpy: 'Mikro-Spion', typeView: 'Fachkamera', typeMotor: 'Federwerk', typeOther: 'Sonstige',
+        typeLens: 'Objektiv', typeLightMeter: 'Belichtungsmesser', typeRangefinderAcc: 'Entfernungsmesser', typeShutter: 'Fernauslöser'
+    },
+    fr: { 
+        tagline: 'Collection Personnelle d\'Appareils Photo', cameras: 'Appareils', brands: 'Marques', purchaseValue: 'Valeur d\'Achat', catalogValue: 'Valeur Catalogue', 
+        allTypes: 'Tous les types', allFilmTypes: 'Tous les films', allRarities: 'Toutes les raretés', allCountries: 'Tous les pays', allConditions: 'Tous les états', 
+        condExcellent: 'Excellent', condGood: 'Bon', condFair: 'Acceptable', condPoor: 'À réparer', 
+        sortNewest: 'Plus récents', sortOldest: 'Plus anciens', sortNameAZ: 'Nom A-Z', sortNameZA: 'Nom Z-A', sortBrandAZ: 'Marque A-Z', sortBrandZA: 'Marque Z-A', sortYearDesc: 'Année ↓', sortYearAsc: 'Année ↑', sortPriceDesc: 'Prix ↓', sortPriceAsc: 'Prix ↑', sortCatalogDesc: 'Catalogue ↓', sortCatalogAsc: 'Catalogue ↑', 
+        unknown: 'Inconnu', selectOption: 'Sélectionner...', 
+        toastAdded: 'Appareil ajouté', toastUpdated: 'Appareil mis à jour', toastDeleted: 'Appareil supprimé', toastImported: 'appareils importés', toastBackupSaved: 'Sauvegarde effectuée', toastBackupRestored: 'appareils restaurés', toastMigrated: 'Données migrées', toastAllDeleted: 'Données supprimées', 
+        confirmDelete: 'Supprimer cet appareil ?', confirmDeleteAll: 'Supprimer TOUTES les données ?', alertRequired: 'Remplir les champs obligatoires !', alertNoData: 'Aucune donnée.', loading: 'Chargement...', saving: 'Enregistrement...', 
+        colYear: 'Année', colType: 'Type', colSerial: 'N° Série', colSource: 'Provenance', colPurchase: 'Achat', colCatalog: 'Catalogue', colStatus: 'État', colRarity: 'Rareté', colFilmType: 'Film', colCountry: 'Pays',
+        // Rarities
+        rarCommon: 'Commun', rarUncommon: 'Peu commun', rarRare: 'Rare', rarVeryRare: 'Très rare', rarExtremelyRare: 'Extrêmement rare',
+        // Countries
+        countryDE: 'Allemagne', countryJP: 'Japon', countryUS: 'États-Unis', countryGB: 'Royaume-Uni', countryFR: 'France', countryIT: 'Italie', 
+        countrySU: 'URSS', countryRU: 'Russie', countryCN: 'Chine', countryKR: 'Corée du Sud', countryTW: 'Taïwan', 
+        countryAT: 'Autriche', countryCH: 'Suisse', countrySE: 'Suède', countryNL: 'Pays-Bas', countryPL: 'Pologne', 
+        countryCZ: 'Tchéquie', countryHU: 'Hongrie', countryRO: 'Roumanie', countryDD: 'Allemagne de l\'Est', countryBE: 'Belgique', countryES: 'Espagne', countryXX: 'Autre pays',
+        // Functional
+        funcYes: 'Oui', funcNo: 'Non',
+        // Extra labels
+        colYearLaunch: 'Année de lancement',
+        lastUpdate: 'Dernière mise à jour', lastAdded: 'Dernier ajouté',
+        // Buttons
+        btnAddCamera: 'Ajouter Appareil', btnBackup: 'Sauvegarde', btnExportExcel: 'Export Excel', btnExportPDF: 'Export PDF',
+        btnSave: 'Enregistrer', btnCancel: 'Annuler', btnClose: 'Fermer', btnImport: 'Importer', btnPrint: 'Imprimer',
+        modalTitleAdd: 'Ajouter Appareil', modalTitleEdit: 'Modifier Appareil',
+        // Form labels
+        lblName: 'Nom', lblBrand: 'Marque', lblModel: 'Modèle', lblType: 'Type', lblType2: 'Type secondaire',
+        lblYear: 'Année de fabrication', lblRarity: 'Rareté', lblCountry: 'Pays d\'origine', lblFilmType: 'Type de film',
+        lblSerial: 'Numéro de série', lblStatus: 'État', lblFunctional: 'Fonctionnel', lblSource: 'Provenance',
+        lblPurchasePrice: 'Prix d\'achat (€)', lblCatalogValue: 'Valeur catalogue (€)', lblPurchaseDate: 'Date d\'achat',
+        lblPhoto: 'Photo', lblNotes: 'Notes', lblDeleteImage: 'Supprimer l\'image',
+        lblImageCompressInfo: 'Les images sont compressées automatiquement à ~80KB',
+        // PDF labels
+        pdfCountry: 'Pays d\'origine', pdfFilmType: 'Type de film', pdfRarity: 'Rareté', pdfCondition: 'État',
+        pdfFunctional: 'Fonctionnel', pdfSerial: 'N° série', pdfType: 'Type d\'appareil', pdfYear: 'Année de fabrication',
+        pdfSource: 'Provenance', pdfPurchaseDate: 'Date d\'achat', pdfPurchasePrice: 'Prix d\'achat',
+        pdfCatalogValue: 'Valeur catalogue', pdfNotes: 'Notes / Observations', pdfNoNotes: 'Aucune note ajoutée.',
+        pdfCollection: 'Collection', pdfPrint: 'Imprimer / Enregistrer PDF', pdfClose: 'Fermer',
+        // Search
+        searchPlaceholder: 'Rechercher...', searchEbay: 'Chercher sur eBay',
+        // Tooltips
+        tooltipPDF: 'Fiche PDF', tooltipEdit: 'Modifier', tooltipDelete: 'Supprimer',
+        // Settings
+        settingsTitle: 'Paramètres', settingsOwner: 'Propriétaire', settingsOwnerPlaceholder: 'Nom du propriétaire',
+        settingsLanguage: 'Langue', settingsColor: 'Couleur', settingsMode: 'Mode',
+        settingsModeDark: 'Sombre', settingsModeLight: 'Clair',
+        settingsStorage: 'Stockage (IndexedDB)', settingsSize: 'Taille',
+        settingsImportExcel: 'Importer Excel', settingsRestoreBackup: 'Restaurer sauvegarde',
+        settingsMigrate: 'Migrer localStorage', settingsDanger: 'Danger',
+        settingsDeleteAll: 'Supprimer toutes les données',
+        // Types
+        typeSLRFilm: 'Reflex Film', typeSLRDigital: 'Reflex Numérique', typeMirrorless: 'Hybride', typeRangefinder: 'Télémétrique', 
+        typeCompactFilm: 'Compact Film', typeCompactDigital: 'Compact Numérique', typeMediumFormat: 'Moyen Format', typeLargeFormat: 'Grand Format', 
+        typeInstant: 'Instantané', typeTLR: 'TLR', typeBox: 'Box', typeFolding: 'Pliant', 
+        typeMicroSpy: 'Micro-Espion', typeView: 'Chambre', typeMotor: 'À ressort', typeOther: 'Autres',
+        typeLens: 'Objectif', typeLightMeter: 'Posemètre', typeRangefinderAcc: 'Télémètre', typeShutter: 'Déclencheur'
     }
 };
 
@@ -782,10 +992,58 @@ function applySettings() {
     document.getElementById('lblBrands').textContent = t('brands');
     document.getElementById('lblPurchaseValue').textContent = t('purchaseValue');
     document.getElementById('lblCatalogValue').textContent = t('catalogValue');
+    document.getElementById('lblLastUpdate').textContent = t('lastUpdate');
+    document.getElementById('lblLastAdded').textContent = t('lastAdded');
+    // Translate buttons
+    document.getElementById('btnAddCameraText').textContent = t('btnAddCamera');
+    document.getElementById('btnBackupText').textContent = t('btnBackup');
+    document.getElementById('btnExportExcelText').textContent = t('btnExportExcel');
+    document.getElementById('btnExportPDFText').textContent = t('btnExportPDF');
+    // Translate search
+    document.getElementById('searchInput').placeholder = t('searchPlaceholder');
+    // Translate settings modal
+    document.getElementById('settingsModalTitle').textContent = '⚙ ' + t('settingsTitle');
+    document.getElementById('settingsOwnerTitle').textContent = '👤 ' + t('settingsOwner');
+    document.getElementById('ownerNameInput').placeholder = t('settingsOwnerPlaceholder');
+    document.getElementById('settingsLanguageTitle').textContent = '🌐 ' + t('settingsLanguage');
+    document.getElementById('settingsColorTitle').textContent = '🎨 ' + t('settingsColor');
+    document.getElementById('settingsModeTitle').textContent = '☀ ' + t('settingsMode');
+    document.getElementById('settingsModeDarkLabel').textContent = t('settingsModeDark');
+    document.getElementById('settingsModeLightLabel').textContent = t('settingsModeLight');
+    document.getElementById('settingsStorageTitle').textContent = '💾 ' + t('settingsStorage');
+    document.getElementById('settingsCamerasLabel').textContent = t('cameras');
+    document.getElementById('settingsSizeLabel').textContent = t('settingsSize');
+    document.getElementById('btnImportExcel').textContent = '↑ ' + t('settingsImportExcel');
+    document.getElementById('btnRestoreBackup').textContent = '↑ ' + t('settingsRestoreBackup');
+    document.getElementById('btnMigrate').textContent = '🔄 ' + t('settingsMigrate');
+    document.getElementById('settingsDangerTitle').textContent = '⚠️ ' + t('settingsDanger');
+    document.getElementById('btnDeleteAll').textContent = '🗑 ' + t('settingsDeleteAll');
+    document.getElementById('btnCloseSettings').textContent = t('btnClose');
 }
 
 function populateDropdowns() {
-    const types = ['SLR Film', 'SLR Digital', 'Mirrorless', 'Rangefinder', 'Compact Film', 'Compact Digital', 'Medium Format', 'Large Format', 'Instant', 'TLR', 'Box Camera', 'Folding Camera', 'Micro-Spy', 'View Camera', 'Motor cu arc', 'Altele'];
+    const types = [
+        { value: 'SLR Film', key: 'typeSLRFilm' },
+        { value: 'SLR Digital', key: 'typeSLRDigital' },
+        { value: 'Mirrorless', key: 'typeMirrorless' },
+        { value: 'Rangefinder', key: 'typeRangefinder' },
+        { value: 'Compact Film', key: 'typeCompactFilm' },
+        { value: 'Compact Digital', key: 'typeCompactDigital' },
+        { value: 'Medium Format', key: 'typeMediumFormat' },
+        { value: 'Large Format', key: 'typeLargeFormat' },
+        { value: 'Instant', key: 'typeInstant' },
+        { value: 'TLR', key: 'typeTLR' },
+        { value: 'Box Camera', key: 'typeBox' },
+        { value: 'Folding Camera', key: 'typeFolding' },
+        { value: 'Micro-Spy', key: 'typeMicroSpy' },
+        { value: 'View Camera', key: 'typeView' },
+        { value: 'Motor', key: 'typeMotor' },
+        { value: 'Other', key: 'typeOther' },
+        { value: 'Lens', key: 'typeLens' },
+        { value: 'Light Meter', key: 'typeLightMeter' },
+        { value: 'Rangefinder Acc', key: 'typeRangefinderAcc' },
+        { value: 'Shutter Release', key: 'typeShutter' }
+    ];
     const filmTypes = ['Plăci', '16mm', '35mm', '110', '116', '118', '120', '122', '123', '126', 'Cartuș 126', '127', '129', '130', '620', '828', 'Rapid', 'DLC', 'APS', 'Instant', 'Digital', 'Disc', 'Alte Rollfilm'];
     const rarities = [
         { value: 'Comun', label: t('rarCommon') },
@@ -819,13 +1077,13 @@ function populateDropdowns() {
         {code: 'KR', flag: '🇰🇷', nameKey: 'countryKR'},
         {code: 'XX', flag: '🌍', nameKey: 'countryXX'}
     ];
-    document.getElementById('filterType').innerHTML = `<option value="">${t('allTypes')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('filterType').innerHTML = `<option value="">${t('allTypes')}</option>` + types.map(x => `<option value="${x.value}">${t(x.key)}</option>`).join('');
     document.getElementById('filterFilmType').innerHTML = `<option value="">${t('allFilmTypes')}</option>` + filmTypes.map(x => `<option value="${x}">${x}</option>`).join('');
     document.getElementById('filterCountry').innerHTML = `<option value="">${t('allCountries')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${t(c.nameKey)}</option>`).join('');
     document.getElementById('filterRarity').innerHTML = `<option value="">${t('allRarities')}</option>` + rarities.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
     document.getElementById('sortBy').innerHTML = `<option value="year_asc">${t('sortYearAsc')}</option><option value="year_desc">${t('sortYearDesc')}</option><option value="dateAdded_desc">${t('sortNewest')}</option><option value="dateAdded_asc">${t('sortOldest')}</option><option value="name_asc">${t('sortNameAZ')}</option><option value="name_desc">${t('sortNameZA')}</option><option value="brand_asc">${t('sortBrandAZ')}</option><option value="brand_desc">${t('sortBrandZA')}</option><option value="purchasePrice_desc">${t('sortPriceDesc')}</option><option value="purchasePrice_asc">${t('sortPriceAsc')}</option><option value="catalogValue_desc">${t('sortCatalogDesc')}</option><option value="catalogValue_asc">${t('sortCatalogAsc')}</option>`;
-    document.getElementById('cameraType').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
-    document.getElementById('cameraType2').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x}">${x}</option>`).join('');
+    document.getElementById('cameraType').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x.value}">${t(x.key)}</option>`).join('');
+    document.getElementById('cameraType2').innerHTML = `<option value="">${t('selectOption')}</option>` + types.map(x => `<option value="${x.value}">${t(x.key)}</option>`).join('');
     document.getElementById('cameraStatus').innerHTML = `<option value="">${t('selectOption')}</option><option value="Excelentă">${t('condExcellent')}</option><option value="Bună">${t('condGood')}</option><option value="Acceptabilă">${t('condFair')}</option><option value="Necesită reparații">${t('condPoor')}</option>`;
     document.getElementById('cameraRarity').innerHTML = `<option value="">${t('selectOption')}</option>` + rarities.map(r => `<option value="${r.value}">${r.label}</option>`).join('');
     document.getElementById('cameraCountry').innerHTML = `<option value="">${t('selectOption')}</option>` + countries.map(c => `<option value="${c.code}">${c.flag} ${t(c.nameKey)}</option>`).join('');
@@ -865,6 +1123,32 @@ function updateStats() {
     document.getElementById('totalBrands').textContent = new Set(cameras.map(c => c.brand).filter(Boolean)).size;
     document.getElementById('totalPurchaseValue').textContent = cameras.reduce((s, c) => s + (parseFloat(c.purchasePrice) || 0), 0).toFixed(0) + ' €';
     document.getElementById('totalCatalogValue').textContent = cameras.reduce((s, c) => s + (parseFloat(c.catalogValue) || 0), 0).toFixed(0) + ' €';
+    
+    // Calculate last update and last added dates
+    if (cameras.length > 0) {
+        // Find most recent update (updatedAt only)
+        const lastUpdate = cameras.reduce((latest, c) => {
+            return c.updatedAt && c.updatedAt > latest ? c.updatedAt : latest;
+        }, '');
+        
+        // Find most recent addition (createdAt only - real new cameras)
+        const lastAdded = cameras.reduce((latest, c) => {
+            return c.createdAt && c.createdAt > latest ? c.createdAt : latest;
+        }, '');
+        
+        // Format with date and time
+        const formatDateTime = (isoDate) => {
+            if (!isoDate) return '—';
+            const d = new Date(isoDate);
+            return d.toLocaleDateString('ro-RO') + ' ' + d.toLocaleTimeString('ro-RO', {hour: '2-digit', minute: '2-digit'});
+        };
+        
+        document.getElementById('lastUpdateDate').textContent = formatDateTime(lastUpdate);
+        document.getElementById('lastAddedDate').textContent = formatDateTime(lastAdded);
+    } else {
+        document.getElementById('lastUpdateDate').textContent = '—';
+        document.getElementById('lastAddedDate').textContent = '—';
+    }
 }
 
 // ==================== RENDER ====================
@@ -963,12 +1247,14 @@ function renderCard(c) {
     const rarityText = { 'Comun': t('rarCommon'), 'Neobișnuit': t('rarUncommon'), 'Rar': t('rarRare'), 'Foarte rar': t('rarVeryRare'), 'Extrem de rar': t('rarExtremelyRare') }[c.rarity] || '';
     const countryFlags = { 'DE': '🇩🇪', 'JP': '🇯🇵', 'US': '🇺🇸', 'GB': '🇬🇧', 'FR': '🇫🇷', 'IT': '🇮🇹', 'SU': '🇷🇺', 'RU': '🇷🇺', 'CN': '🇨🇳', 'KR': '🇰🇷', 'TW': '🇹🇼', 'AT': '🇦🇹', 'CH': '🇨🇭', 'SE': '🇸🇪', 'NL': '🇳🇱', 'PL': '🇵🇱', 'CZ': '🇨🇿', 'HU': '🇭🇺', 'RO': '🇷🇴', 'DD': '🇩🇪', 'BE': '🇧🇪', 'ES': '🇪🇸', 'XX': '🌍' };
     const countryKeys = { 'DE': 'countryDE', 'JP': 'countryJP', 'US': 'countryUS', 'GB': 'countryGB', 'FR': 'countryFR', 'IT': 'countryIT', 'SU': 'countrySU', 'RU': 'countryRU', 'CN': 'countryCN', 'KR': 'countryKR', 'TW': 'countryTW', 'AT': 'countryAT', 'CH': 'countryCH', 'SE': 'countrySE', 'NL': 'countryNL', 'PL': 'countryPL', 'CZ': 'countryCZ', 'HU': 'countryHU', 'RO': 'countryRO', 'DD': 'countryDD', 'BE': 'countryBE', 'ES': 'countryES', 'XX': 'countryXX' };
+    const typeKeys = { 'SLR Film': 'typeSLRFilm', 'SLR Digital': 'typeSLRDigital', 'Mirrorless': 'typeMirrorless', 'Rangefinder': 'typeRangefinder', 'Compact Film': 'typeCompactFilm', 'Compact Digital': 'typeCompactDigital', 'Medium Format': 'typeMediumFormat', 'Large Format': 'typeLargeFormat', 'Instant': 'typeInstant', 'TLR': 'typeTLR', 'Box Camera': 'typeBox', 'Folding Camera': 'typeFolding', 'Micro-Spy': 'typeMicroSpy', 'View Camera': 'typeView', 'Motor': 'typeMotor', 'Other': 'typeOther', 'Lens': 'typeLens', 'Light Meter': 'typeLightMeter', 'Rangefinder Acc': 'typeRangefinderAcc', 'Shutter Release': 'typeShutter' };
+    const translateType = (type) => type && typeKeys[type] ? t(typeKeys[type]) : type;
     const countryFlag = countryFlags[c.country] || '';
     const countryName = c.country ? t(countryKeys[c.country]) : '';
     const ebayUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent((c.brand || '') + ' ' + (c.model || ''))}`;
     
-    // Format types display
-    const typesDisplay = [c.type, c.type2].filter(Boolean).join(' / ') || '—';
+    // Format types display with translation
+    const typesDisplay = [c.type, c.type2].filter(Boolean).map(translateType).join(' / ') || '—';
     
     // Country display after name (steag + țară)
     const countryInline = c.country && countryFlag ? `<span class="country-inline">${countryFlag} ${countryName}</span>` : '';
@@ -987,10 +1273,10 @@ function renderCard(c) {
     
     // Actions HTML
     const actionsHtml = `<div class="camera-actions">
-        <button class="btn-icon btn-pdf" onclick="event.stopPropagation();exportCameraPDF('${c.id}')" title="Fișă PDF">📄</button>
-        <button class="btn-icon btn-ebay" onclick="event.stopPropagation();window.open('${ebayUrl}','_blank')" title="Caută pe eBay">🔍</button>
-        <button class="btn-icon btn-edit" onclick="event.stopPropagation();editCamera('${c.id}')" title="Editează">✎</button>
-        <button class="btn-icon btn-delete" onclick="event.stopPropagation();deleteCamera('${c.id}')" title="Șterge">✕</button>
+        <button class="btn-icon btn-pdf" onclick="event.stopPropagation();exportCameraPDF('${c.id}')" title="${t('tooltipPDF')}">📄</button>
+        <button class="btn-icon btn-ebay" onclick="event.stopPropagation();window.open('${ebayUrl}','_blank')" title="${t('searchEbay')}">🔍</button>
+        <button class="btn-icon btn-edit" onclick="event.stopPropagation();editCamera('${c.id}')" title="${t('tooltipEdit')}">✎</button>
+        <button class="btn-icon btn-delete" onclick="event.stopPropagation();deleteCamera('${c.id}')" title="${t('tooltipDelete')}">✕</button>
     </div>`;
     
     // List view - columns: Image | Name | Year | Type(s) | Film | Rarity | Catalog | Actions
@@ -1018,7 +1304,7 @@ function renderCard(c) {
         <div class="camera-content">
             <div class="camera-brand">${esc(c.brand || t('unknown'))} ${countryInline}</div>
             <div class="camera-name">${esc(c.name)}</div>
-            <div class="camera-meta">${esc(typesDisplay)}${(c.type || c.type2) && c.year ? ' • ' : ''}${c.year || ''}</div>
+            <div class="camera-meta">${esc(typesDisplay)}${(c.type || c.type2) && c.year ? ' • ' : ''}${c.year || ''}${c.serial ? ' • S/N: ' + esc(c.serial) : ''}</div>
             <div class="camera-details">
                 <div class="detail-item"><span class="detail-label">${t('colFilmType')}</span><span class="detail-value">${esc(c.filmType || '—')}</span></div>
                 <div class="detail-item"><span class="detail-label">${t('colYearLaunch')}</span><span class="detail-value year-green">${c.year || '—'}</span></div>
@@ -1088,8 +1374,39 @@ function updateFilteredStats() {
 }
 
 // ==================== CAMERA MODAL ====================
+function updateFormLabels() {
+    document.getElementById('lblNameForm').textContent = t('lblName') + ' *';
+    document.getElementById('lblBrandForm').textContent = t('lblBrand') + ' *';
+    document.getElementById('lblModelForm').textContent = t('lblModel') + ' *';
+    document.getElementById('lblTypeForm').textContent = t('lblType');
+    document.getElementById('lblType2Form').textContent = t('lblType2');
+    document.getElementById('lblYearForm').textContent = t('lblYear');
+    document.getElementById('lblRarityForm').textContent = t('lblRarity');
+    document.getElementById('lblCountryForm').textContent = t('lblCountry');
+    document.getElementById('lblFilmTypeForm').textContent = t('lblFilmType');
+    document.getElementById('lblSerialForm').textContent = t('lblSerial');
+    document.getElementById('lblStatusForm').textContent = t('lblStatus');
+    document.getElementById('lblFunctionalForm').textContent = t('lblFunctional');
+    document.getElementById('lblSourceForm').textContent = t('lblSource');
+    document.getElementById('lblPurchasePriceForm').textContent = t('lblPurchasePrice');
+    document.getElementById('lblCatalogValueForm').textContent = t('lblCatalogValue');
+    document.getElementById('lblPurchaseDateForm').textContent = t('lblPurchaseDate');
+    document.getElementById('lblPhotoForm').textContent = t('lblPhoto');
+    document.getElementById('lblNotesForm').textContent = t('lblNotes');
+    document.getElementById('lblImageCompressInfoForm').textContent = t('lblImageCompressInfo');
+    document.getElementById('btnDeleteImage').innerHTML = '🗑️ ' + t('lblDeleteImage');
+    // Update functional dropdown
+    const funcSelect = document.getElementById('cameraFunctional');
+    const currentVal = funcSelect.value;
+    funcSelect.innerHTML = `<option value="">${t('selectOption')}</option><option value="da">${t('funcYes')}</option><option value="nu">${t('funcNo')}</option>`;
+    funcSelect.value = currentVal;
+}
+
 function openAddModal() {
-    document.getElementById('modalTitle').textContent = 'Adaugă Aparat';
+    document.getElementById('modalTitle').textContent = t('modalTitleAdd');
+    document.getElementById('btnSaveCamera').textContent = t('btnSave');
+    document.getElementById('btnCancelCamera').textContent = t('btnCancel');
+    updateFormLabels();
     document.getElementById('cameraForm').reset();
     document.getElementById('cameraId').value = '';
     document.getElementById('imagePreviewContainer').style.display = 'none';
@@ -1102,7 +1419,10 @@ function closeModal() { document.getElementById('cameraModal').classList.remove(
 function editCamera(id) {
     const c = cameras.find(x => x.id === id);
     if (!c) return;
-    document.getElementById('modalTitle').textContent = 'Editează Aparat';
+    document.getElementById('modalTitle').textContent = t('modalTitleEdit');
+    document.getElementById('btnSaveCamera').textContent = t('btnSave');
+    document.getElementById('btnCancelCamera').textContent = t('btnCancel');
+    updateFormLabels();
     document.getElementById('cameraId').value = c.id;
     document.getElementById('cameraName').value = c.name || '';
     document.getElementById('cameraBrand').value = c.brand || '';
@@ -1158,6 +1478,10 @@ async function saveCamera() {
     if (!name || !brand || !model) { alert(t('alertRequired')); return; }
     
     showLoading(t('saving'));
+    const now = new Date().toISOString();
+    const existingCamera = id ? cameras.find(c => c.id === id) : null;
+    const isNewCamera = !id;
+    
     const data = {
         id: id || 'cam_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
         name, brand, model,
@@ -1176,7 +1500,9 @@ async function saveCamera() {
         source: document.getElementById('cameraSource').value.trim(),
         notes: document.getElementById('cameraNotes').value.trim(),
         image: currentImageData,
-        dateAdded: id ? cameras.find(c => c.id === id)?.dateAdded : Date.now()
+        dateAdded: existingCamera?.dateAdded || Date.now(),
+        createdAt: isNewCamera ? now : (existingCamera?.createdAt || null),
+        updatedAt: now
     };
     
     await dbPut(data);
@@ -1465,8 +1791,8 @@ function exportCameraPDF(id) {
 <body>
 
 <div class="no-print">
-    <button onclick="window.print()">🖨️ Printează / Salvează PDF</button>
-    <button onclick="window.close()">✕ Închide</button>
+    <button onclick="window.print()">🖨️ ` + t('pdfPrint') + `</button>
+    <button onclick="window.close()">✕ ` + t('pdfClose') + `</button>
 </div>
 
 <div class="content">
@@ -1487,39 +1813,39 @@ function exportCameraPDF(id) {
     
     <!-- Info Grid -->
     <div class="info-grid">
-        <div class="info-row"><span class="info-label">Țara origine:</span><span class="info-value">${countryDisplay}</span></div>
-        <div class="info-row"><span class="info-label">Tip film:</span><span class="info-value">${esc(c.filmType || '—')}</span></div>
-        <div class="info-row"><span class="info-label">Raritate:</span><span class="info-value highlight">${rarityDisplay}</span></div>
-        <div class="info-row"><span class="info-label">Stare:</span><span class="info-value">${statusText}</span></div>
-        <div class="info-row"><span class="info-label">Funcțional:</span><span class="info-value ${funcClass}">${funcText}</span></div>
-        <div class="info-row"><span class="info-label">Nr. serie:</span><span class="info-value">${esc(c.serial || '—')}</span></div>
-        <div class="info-row"><span class="info-label">Tip aparat:</span><span class="info-value">${esc(c.type || '—')}</span></div>
-        <div class="info-row"><span class="info-label">An fabricație:</span><span class="info-value">${c.year || '—'}</span></div>
-        <div class="info-row"><span class="info-label">Proveniență:</span><span class="info-value">${esc(c.source || '—')}</span></div>
-        <div class="info-row"><span class="info-label">Data achiziție:</span><span class="info-value">${c.purchaseDate ? new Date(c.purchaseDate).toLocaleDateString('ro-RO') : '—'}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfCountry') + `:</span><span class="info-value">${countryDisplay}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfFilmType') + `:</span><span class="info-value">${esc(c.filmType || '—')}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfRarity') + `:</span><span class="info-value highlight">${rarityDisplay}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfCondition') + `:</span><span class="info-value">${statusText}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfFunctional') + `:</span><span class="info-value ${funcClass}">${funcText}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfSerial') + `:</span><span class="info-value">${esc(c.serial || '—')}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfType') + `:</span><span class="info-value">${esc(c.type || '—')}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfYear') + `:</span><span class="info-value">${c.year || '—'}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfSource') + `:</span><span class="info-value">${esc(c.source || '—')}</span></div>
+        <div class="info-row"><span class="info-label">` + t('pdfPurchaseDate') + `:</span><span class="info-value">${c.purchaseDate ? new Date(c.purchaseDate).toLocaleDateString(settings.language === 'en' ? 'en-GB' : settings.language === 'de' ? 'de-DE' : settings.language === 'fr' ? 'fr-FR' : 'ro-RO') : '—'}</span></div>
     </div>
     
     <!-- Values -->
     <div class="values-row">
         <div class="value-item">
-            <div class="value-label">Preț achiziție</div>
+            <div class="value-label">` + t('pdfPurchasePrice') + `</div>
             <div class="value-amount">${c.purchasePrice ? c.purchasePrice + ' €' : '—'}</div>
         </div>
         <div class="value-item">
-            <div class="value-label">Valoare catalog</div>
+            <div class="value-label">` + t('pdfCatalogValue') + `</div>
             <div class="value-amount">${c.catalogValue ? c.catalogValue + ' €' : '—'}</div>
         </div>
     </div>
     
     <!-- Notes - always present -->
     <div class="notes">
-        <div class="notes-title">📝 Note / Observații</div>
-        <div class="notes-text">${c.notes ? esc(c.notes) : '<span class="notes-empty">Nicio notă adăugată.</span>'}</div>
+        <div class="notes-title">📝 ` + t('pdfNotes') + `</div>
+        <div class="notes-text">${c.notes ? esc(c.notes) : '<span class="notes-empty">' + t('pdfNoNotes') + '</span>'}</div>
     </div>
     
     <!-- Footer -->
     <div class="footer">
-        Camera Arena • Colecția: ${esc(settings.ownerName || 'Merlinlx')}
+        Camera Arena • ` + t('pdfCollection') + `: ${esc(settings.ownerName || 'Merlinlx')}
     </div>
 </div>
 
