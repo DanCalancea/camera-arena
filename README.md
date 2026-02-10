@@ -1,163 +1,214 @@
 # 📷 Camera Arena
 
-**Aplicație web pentru gestionarea colecțiilor de aparate foto vintage**
+**A beautiful, feature-rich web application for managing your personal camera collection.**
 
-![Version](https://img.shields.io/badge/version-2.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Platform](https://img.shields.io/badge/platform-web-orange)
+Camera Arena is a single-file HTML application that runs entirely in your browser. No server required, no installation needed – just open the file and start cataloging your cameras!
 
----
-
-## ✨ Descriere
-
-Camera Arena este o aplicație completă pentru colecționarii de aparate foto. Funcționează 100% în browser, fără server, cu stocare locală în IndexedDB. Perfect pentru a cataloga, organiza și valorifica colecția ta de camere vintage.
+![Camera Arena](https://img.shields.io/badge/version-3.0-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Languages](https://img.shields.io/badge/languages-4-orange)
 
 ---
 
-## 🚀 Funcționalități
+## ✨ Features
 
-### 📋 Gestionare Colecție
-- **Câmpuri complete**: Denumire, Marcă, Model, Tip (principal + secundar), An fabricație, Țară origine, Tip film, Raritate, Număr serie, Stare, Funcțional, Proveniență, Prețuri, Note
-- **16 tipuri de aparate**: SLR Film, SLR Digital, Mirrorless, Rangefinder, TLR, Box Camera, Folding Camera, și altele
-- **23 tipuri de film**: De la Plăci de sticlă la Digital, inclusiv formate rare (116, 122, 127, 828)
-- **21 de țări** cu steaguri emoji (suport Twemoji pentru Chrome)
-- **5 nivele de raritate** cu culori distinctive
+### 📚 Complete Camera Catalog
+- **Comprehensive data fields**: Name, Brand, Model, Type, Year, Serial Number, Country of Origin, Film Type, Rarity, Condition, and more
+- **Dual type classification**: Assign primary and secondary types to each camera
+- **Custom notes**: Add detailed observations for each item
+- **Purchase tracking**: Record purchase price, catalog value, purchase date, and source
 
-### 🔍 Filtrare și Sortare
-- Căutare text în denumire, marcă, model, note
-- Filtrare după: Tip aparat, Tip film, Țară, Raritate
-- Sortare după: An, Denumire, Marcă, Preț, Valoare catalog
-- Filtrare duală pe tip (caută în Tip principal SAU secundar)
+### 🖼️ Image Management
+- **Photo support**: Add photos to each camera entry
+- **Automatic compression**: Images are automatically compressed to ~80KB for efficient storage
+- **Preview before save**: See the compressed image before saving
 
-### 👁️ Vizualizare
-- **3 moduri**: Tile (carduri mari), List (tabel), Compact (carduri mici)
-- **Virtual scrolling** pentru colecții mari (100+ aparate)
-- **Badges colorate** pentru Stare, Funcțional, Raritate, Țară
+### 🔍 Powerful Search & Filtering
+- **Real-time search**: Instantly find cameras by name, brand, model, or notes
+- **Multiple filters**: Filter by Type, Film Type, Country, Rarity
+- **Flexible sorting**: Sort by Year, Name, Brand, Purchase Price, Catalog Value, Date Added
 
-### 📊 Statistici
-- Număr total aparate și mărci
-- Valoare totală achiziție și catalog
-- Statistici pentru selecția curentă (când sunt filtre active)
+### 👁️ Multiple View Modes
+- **Tile View**: Large cards with photos and detailed information
+- **List View**: Compact table format with virtual scrolling for large collections
+- **Compact View**: Minimalist grid for quick overview
 
-### 📤 Export
-- **Excel (.xlsx)**: Export complet sau doar selecția filtrată
-- **PDF Listă**: Tabel cu toate aparatele + statistici
-- **PDF Fișă individuală**: Fișă profesională per aparat cu fotografie
+### 🌍 Multi-Language Support
+- 🇷🇴 **Română** (Romanian)
+- 🇬🇧 **English**
+- 🇩🇪 **Deutsch** (German)
+- 🇫🇷 **Français** (French)
 
-### ⚙️ Personalizare
-- **6 teme de culori**: Auriu, Albastru, Verde, Violet, Roșu, Teal
-- **Mod Dark/Light**
-- **Română / Engleză**
-- **Nume proprietar** personalizabil (apare în exporturi)
+All interface elements, labels, tooltips, and messages are fully translated.
 
-### 💾 Stocare
-- **IndexedDB** - stocare persistentă în browser
-- **Backup/Restore JSON** - salvare și restaurare completă
-- **Import Excel** - import în masă din fișiere existente
-- **Compresie imagini** - automat la 800x800px, ~80KB
+### 🎨 Customization
+- **6 Color themes**: Gold, Blue, Green, Purple, Red, Teal
+- **Dark/Light mode**: Choose your preferred display mode
+- **Owner name**: Personalize your collection with your name
 
----
+### 📊 Statistics Dashboard
+- Total cameras count
+- Total brands count
+- Total purchase value
+- Total catalog value
+- Last update timestamp
+- Last camera added timestamp
+- Filtered results statistics
 
-## 🖥️ Instalare
+### 📄 Export Options
 
-### Varianta simplă (recomandată)
-1. Descarcă fișierul `camera-collection.html`
-2. Deschide-l în browser (Chrome, Firefox, Edge)
-3. Gata! Începe să adaugi aparate
+#### Excel Export
+- Export your entire collection to Excel (.xlsx)
+- All fields included with proper formatting
+- Ready for spreadsheets or backup
 
-### Din GitHub
-```bash
-git clone https://github.com/DanCalancea/camera-arena.git
-cd camera-arena
-# Deschide camera-collection.html în browser
-```
+#### PDF Camera Sheet
+- Generate beautiful single-page PDF sheets for each camera
+- Professional layout with photo, specifications, and values
+- Perfect for printing or digital archiving
+- Fully translated based on selected language
 
----
+#### JSON Backup
+- Complete backup of all data including images
+- Easy restore functionality
+- Includes settings and metadata
 
-## 📖 Utilizare
+### 📥 Import Options
+- **Excel Import**: Import cameras from Excel files (.xlsx, .xls)
+- **Backup Restore**: Restore from JSON backup files
+- **localStorage Migration**: Migrate data from older versions
 
-### Adăugare aparat
-1. Click pe **"+ Adaugă Aparat"**
-2. Completează câmpurile (Denumire, Marcă, Model sunt obligatorii)
-3. Încarcă o fotografie (opțional)
-4. Click **"Salvează"**
+### 🔗 Integration
+- **eBay Search**: Quick link to search each camera on eBay
+- One-click access from any camera card
 
-### Filtrare
-- Folosește caseta de căutare pentru text
-- Selectează din dropdown-uri pentru filtrare precisă
-- Combină mai multe filtre simultan
+### 💾 Storage
+- **IndexedDB**: Modern browser storage for large collections
+- **No size limits**: Store hundreds of cameras with photos
+- **Offline capable**: Works without internet connection
+- **Persistent data**: Your collection stays in your browser
 
-### Export
-- **Excel**: Click "Export Excel" - exportă selecția sau tot
-- **PDF Listă**: Click "Export PDF" - generează catalog
-- **PDF Fișă**: Click pe icona 📄 de pe fiecare aparat
-
-### Backup
-1. Deschide **Setări** (⚙️)
-2. Click **"Salvează Backup"** pentru export JSON
-3. Pentru restaurare: **"Restaurează"** și selectează fișierul
-
----
-
-## 🛠️ Tehnologii
-
-- **HTML5** - structură
-- **CSS3** - stilizare (variabile CSS, flexbox, grid)
-- **JavaScript ES6+** - logică aplicație
-- **IndexedDB** - stocare persistentă
-- **SheetJS (xlsx)** - export/import Excel
-- **Twemoji** - steaguri cross-browser
-- **Google Fonts** - Playfair Display, Source Sans 3
+### ⌨️ Keyboard Shortcuts
+- `Ctrl + N` / `Cmd + N`: Add new camera
+- `Escape`: Close modals
 
 ---
 
-## 📁 Structură fișiere
+## 🚀 Getting Started
 
-```
-camera-arena/
-├── camera-collection.html    # Aplicația completă (single file)
-├── README.md                 # Documentație
-└── LICENSE                   # Licență MIT
-```
+### Option 1: Direct Use
+1. Download `camera-arena.html`
+2. Open it in any modern browser (Chrome, Firefox, Edge, Safari)
+3. Start adding your cameras!
 
----
-
-## 🤝 Contribuții
-
-Contribuțiile sunt binevenite! 
-
-1. Fork repository-ul
-2. Creează branch pentru feature (`git checkout -b feature/AmazingFeature`)
-3. Commit modificările (`git commit -m 'Add AmazingFeature'`)
-4. Push la branch (`git push origin feature/AmazingFeature`)
-5. Deschide un Pull Request
+### Option 2: GitHub Pages
+1. Fork this repository
+2. Enable GitHub Pages in repository settings
+3. Access your collection from anywhere
 
 ---
 
-## 📝 Licență
+## 📱 Compatibility
 
-Distribuit sub licența MIT. Vezi `LICENSE` pentru mai multe informații.
-
----
-
-## 👤 Autor
-
-**Merlinlx**
+- ✅ Chrome (recommended)
+- ✅ Firefox
+- ✅ Edge
+- ✅ Safari
+- ✅ Mobile browsers (responsive design)
 
 ---
 
-## 🙏 Mulțumiri
+## 🏷️ Camera Types Supported
 
-- [SheetJS](https://sheetjs.com/) - pentru export/import Excel
-- [Twemoji](https://twemoji.twitter.com/) - pentru emoji cross-browser
-- [Google Fonts](https://fonts.google.com/) - pentru fonturi
+| Category | Types |
+|----------|-------|
+| **SLR** | SLR Film, SLR Digital |
+| **Mirrorless** | Mirrorless / Hybrid |
+| **Rangefinder** | Rangefinder cameras |
+| **Compact** | Compact Film, Compact Digital |
+| **Medium/Large Format** | Medium Format, Large Format |
+| **Vintage** | TLR, Box Camera, Folding Camera, View Camera |
+| **Special** | Instant, Micro-Spy, Spring Motor |
+| **Accessories** | Lens, Light Meter, Rangefinder (accessory), Shutter Release |
+
+---
+
+## 🌐 Countries Supported
+
+Germany, Japan, USA, United Kingdom, France, Italy, USSR, Russia, China, South Korea, Taiwan, Austria, Switzerland, Sweden, Netherlands, Belgium, Spain, Poland, Czech Republic, Hungary, Romania, East Germany, and more.
+
+---
+
+## 🎯 Film Types
+
+Plates, 16mm, 35mm, 110, 116, 118, 120, 122, 123, 126, 127, 129, 130, 620, 828, Rapid, Disc, APS, Instant, Digital, and more.
+
+---
+
+## 📋 Rarity Classification
+
+- **Common**: Easily found
+- **Uncommon**: Somewhat rare
+- **Rare**: Difficult to find
+- **Very Rare**: Highly collectible
+- **Extremely Rare**: Museum-quality pieces
+
+---
+
+## 🛠️ Technical Details
+
+- **Single HTML file**: No dependencies, no build process
+- **Pure JavaScript**: No frameworks required
+- **IndexedDB storage**: Efficient local database
+- **Responsive CSS**: Works on all screen sizes
+- **Modern ES6+**: Clean, maintainable code
+
+### External Libraries Used
+- [SheetJS](https://sheetjs.com/) - Excel import/export
+- [Twemoji](https://twemoji.twitter.com/) - Consistent emoji rendering
+- [Google Fonts](https://fonts.google.com/) - Playfair Display & Source Sans 3
 
 ---
 
 ## 📸 Screenshots
 
-<img width="3200" height="1800" alt="{C60D6DDA-2670-4301-8410-E7DC2AE2B348}" src="https://github.com/user-attachments/assets/acc07170-8319-4a4e-a887-435859f14bf4" />
+### Main Interface (Dark Mode)
+Beautiful tile view with camera photos, badges, and quick actions.
+
+### Settings Panel
+Customize language, theme, mode, and manage your data.
+
+### PDF Export
+Professional camera sheets ready for printing.
 
 ---
 
-**⭐ Dacă îți place proiectul, lasă o stea pe GitHub!**
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest new features
+- Add translations
+- Improve documentation
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+Created with ❤️ for camera collectors worldwide.
+
+---
+
+## 🙏 Acknowledgments
+
+- Inspired by the passion of vintage camera collectors
+- Thanks to all contributors and testers
+- Special thanks to the open-source community
+
+---
+
+**Happy Collecting! 📷✨**
