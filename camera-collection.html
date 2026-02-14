@@ -74,14 +74,21 @@
         .camera-grid:not(.view-list) .camera-card:hover { transform: translateY(-4px); }
         
         /* IMAGE */
-        .camera-image { width: 100%; height: 180px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .camera-image img { width: 100%; height: 100%; object-fit: cover; }
+        .camera-image { width: 100%; height: 180px; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: zoom-in; }
+        .camera-image img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .camera-image.no-image { cursor: default; }
         .camera-image.no-image::before { content: '📷'; font-size: 3rem; opacity: 0.3; }
         .camera-image.no-image::after { content: ''; position: absolute; inset: 0; background: linear-gradient(45deg, transparent 30%, rgba(201,169,98,0.1) 50%, transparent 70%); }
         .view-list .camera-image { width: 80px; height: 55px; border-radius: 4px; flex-shrink: 0; }
         .view-list .camera-image.no-image::before { font-size: 1.5rem; }
         .view-compact .camera-image { height: 140px; }
         .view-compact .camera-image.no-image::before { font-size: 2rem; }
+        
+        /* Image Preview Overlay */
+        .image-preview-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.15s ease; }
+        .image-preview-overlay.active { opacity: 1; visibility: visible; }
+        .image-preview-overlay img { max-width: 90vw; max-height: 90vh; object-fit: contain; border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .image-preview-hint { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.6); font-size: 0.85rem; pointer-events: none; }
         
         /* CONTENT */
         .camera-content { padding: 1.2rem; }
@@ -609,6 +616,10 @@
                 <button class="btn btn-primary" onclick="closeSettingsModal()" id="btnCloseSettings">Închide</button>
             </div>
         </div>
+    </div>
+
+    <div class="image-preview-overlay" id="imagePreviewOverlay">
+        <img id="imagePreviewFull" src="" alt="">
     </div>
 
     <div class="toast" id="toast">
@@ -1952,9 +1963,60 @@ async function clearAllData() {
 function esc(s) { if (!s) return ''; const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function showToast(msg) { document.getElementById('toastMessage').textContent = msg; document.getElementById('toast').classList.add('show'); setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000); }
 
+// ==================== IMAGE PREVIEW (Press & Hold) ====================
+const imageOverlay = document.getElementById('imagePreviewOverlay');
+const imagePreviewFull = document.getElementById('imagePreviewFull');
+
+function showImagePreview(imgSrc) {
+    if (!imgSrc) return;
+    imagePreviewFull.src = imgSrc;
+    imageOverlay.classList.add('active');
+}
+
+function hideImagePreview() {
+    imageOverlay.classList.remove('active');
+}
+
+// Event delegation for camera images
+document.getElementById('cameraGrid').addEventListener('mousedown', function(e) {
+    const cameraImage = e.target.closest('.camera-image');
+    if (cameraImage && !cameraImage.classList.contains('no-image')) {
+        const img = cameraImage.querySelector('img');
+        if (img && img.src) {
+            e.preventDefault();
+            showImagePreview(img.src);
+        }
+    }
+});
+
+document.addEventListener('mouseup', hideImagePreview);
+document.addEventListener('mouseleave', hideImagePreview);
+
+// Touch support for mobile
+document.getElementById('cameraGrid').addEventListener('touchstart', function(e) {
+    const cameraImage = e.target.closest('.camera-image');
+    if (cameraImage && !cameraImage.classList.contains('no-image')) {
+        const img = cameraImage.querySelector('img');
+        if (img && img.src) {
+            e.preventDefault();
+            showImagePreview(img.src);
+        }
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', hideImagePreview);
+document.addEventListener('touchcancel', hideImagePreview);
+
+// Close overlay if clicked
+imageOverlay.addEventListener('mousedown', hideImagePreview);
+imageOverlay.addEventListener('touchstart', hideImagePreview);
+
 document.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); }));
 document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+        hideImagePreview();
+    }
     if (e.key === 'n' && e.ctrlKey) { e.preventDefault(); openAddModal(); }
 });
 </script>
